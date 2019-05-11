@@ -111,6 +111,6 @@ public class StockService {
         if (Objects.isNull(itemDeviceId) || Objects.isNull(from) || Objects.isNull(end)) {
             return false;
         }
-        return stockRepository.isAvailable(itemDeviceId, from, end);
+        return stockRepository.numberOfOverlappingHirePeriods(itemDeviceId, from, end)==0;
     }
 }

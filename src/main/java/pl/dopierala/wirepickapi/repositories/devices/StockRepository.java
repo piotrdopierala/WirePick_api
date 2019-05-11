@@ -2,6 +2,7 @@ package pl.dopierala.wirepickapi.repositories.devices;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 
@@ -13,9 +14,20 @@ public interface StockRepository extends CrudRepository<DeviceItem,Long> {
 
 
     //TODO finish test, sql from code below
-    @Query(value="SELECT 1"
-            ,nativeQuery = true)
-    boolean isAvailable(Long itemId, LocalDateTime from, LocalDateTime to);
 
-    //"SELECT count(1)=0 FROM wirepick.hire_event WHERE (@date_start <= hire_end AND @date_end >= hire_start)"
+    /**
+     * Return number of overlapping period.
+     * 0 if its available.
+     *
+     * @param itemId ID of item to check
+     * @param from start period to check
+     * @param to end period to check
+     * @return 0 if is available, otherwise number of overlapping periods.
+     */
+    @Query(value="SELECT count(1) FROM wirepick.hire_event he JOIN wirepick.device_item_hires dh ON dh.hires_id=he.id " +
+            "WHERE (:from <= hire_end AND :to >= hire_start) AND dh.device_item_id=:itemId"
+            ,nativeQuery = true)
+    Integer numberOfOverlappingHirePeriods(@Param("itemId") Long itemId,
+                                           @Param("from") LocalDateTime from,
+                                           @Param("to") LocalDateTime to);
 }

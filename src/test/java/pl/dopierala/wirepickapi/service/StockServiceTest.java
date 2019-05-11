@@ -129,7 +129,7 @@ public class StockServiceTest {
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         int beginHiresSize = s1_d1_clone.getHires().size();
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(stockRepositoryMock.isAvailable(testDeviceId,hireStartDate,hireEndDate)).thenReturn(true);
+        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(1);
 
         stockService.rentItem(testDeviceId,
                 hireStartDate,
@@ -156,13 +156,13 @@ public class StockServiceTest {
                 SampleUsers.u1));
 
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(stockRepositoryMock.isAvailable(testDeviceId,freeStart,freeEnd)).thenReturn(true);
+        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,freeStart,freeEnd)).thenReturn(1);
 
         Assert.assertTrue(stockService.isAvailable(testDeviceId, freeStart, freeEnd));
     }
 
     //thould be tested with H2 test DB. Not on real data.
-    //because isAvailable works on DB
+    //because numberOfOverlappingHirePeriods works on DB
     @Test
     public void Should_isAvailable_ReturnFalse_When_DeviceAlreadyHired() {
 
