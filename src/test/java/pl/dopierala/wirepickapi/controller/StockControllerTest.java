@@ -9,8 +9,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.dopierala.wirepickapi.SampleStock;
+import pl.dopierala.wirepickapi.SampleUsers;
 import pl.dopierala.wirepickapi.configuration.WebMvcConfig;
 import pl.dopierala.wirepickapi.service.StockService;
+import pl.dopierala.wirepickapi.service.UserService;
 
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -34,6 +36,9 @@ public class StockControllerTest {
 
     @MockBean
     StockService stockService;
+
+    @MockBean
+    UserService userService;
 
     @Before
     public void setup(){
@@ -77,9 +82,16 @@ public class StockControllerTest {
         String urlFormat = "/api/stock/hire/%s/user/%s/from/%s/to/%s";
         String url = String.format(urlFormat,stockItemId,userId,hireStartDate,hireEndDate);
 
+        when(userService.findUserById(userId)).thenReturn(SampleUsers.u1);
+
         mockMvc.perform(put(url))
                 .andDo(print())
                 .andExpect(status().isAccepted());
+    }
+
+    @Test
+    public void Should_putHireDevice_throwException_when_UserNotFound(){
+        //todo finish test
     }
 
 }

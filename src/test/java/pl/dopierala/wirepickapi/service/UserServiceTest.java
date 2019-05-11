@@ -9,7 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import pl.dopierala.wirepickapi.repositories.user.UserRepository;
 
 @RunWith(MockitoJUnitRunner.class)
-class UserServiceTest {
+public class UserServiceTest {
 
     @Mock
     UserRepository userRepositoryMock;

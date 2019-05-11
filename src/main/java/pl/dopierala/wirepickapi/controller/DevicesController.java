@@ -27,8 +27,9 @@ public class DevicesController {
         return deviceService.findDeviceById(deviceId);
     }
 
+    //TODO finish new definition
     @PutMapping("")
-    public long putNewDeviceDefinition(@RequestBody DeviceDefinition ){
+    public long putNewDeviceDefinition(@RequestBody DeviceDefinition newDeviceDefinition){
         return 0L;
     }
 }

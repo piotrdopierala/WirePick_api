@@ -1,6 +1,7 @@
 package pl.dopierala.wirepickapi.service;
 
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import pl.dopierala.wirepickapi.model.device.DeviceDefinition;
 import pl.dopierala.wirepickapi.repositories.devices.DevicesDefinitionRepository;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.hamcrest.CoreMatchers.*;
@@ -73,4 +76,5 @@ public class DeviceServiceTest {
         assertTrue(deviceFoundById.isPresent());
         assertThat(deviceFoundById.get(),is(equalTo(d2)));
     }
+
 }

@@ -37,53 +37,6 @@ public class DeviceItem implements Cloneable {
         this.deviceDefinition = deviceDefinition;
     }
 
-    /**
-     * Rents device for given user from suplied date for given Duration
-     *
-     * @param start DateTime start of rent period
-     * @param duration Duration of rent period
-     * @param user User witch rents device
-     * @return 0 - rent succeeded
-     */
-    public int rent(LocalDateTime start, Duration duration, User user) throws DeviceNotAvailableAlreadyHiredException {
-        if (isAvailable(start, duration)) {
-            hires.add(new HireEvent(start, duration,user));
-            return 0;
-        } else {
-            throw new DeviceNotAvailableAlreadyHiredException();
-        }
-    }
-
-    /**
-     * Rents device for given user between suplied dates
-     *
-     * @param start DateTime start of rent period
-     * @param end DateTime end of rent period
-     * @param user User witch rents device
-     * @return 0 - rent succeeded
-     *
-     */
-    public int rent(LocalDateTime start, LocalDateTime end, User user) throws DeviceNotAvailableAlreadyHiredException {
-        return rent(start, Duration.between(start, end),user);
-    }
-
-    /**
-     * Checks whether deviceDefinition is available to borrow given start date and period od hire.
-     *
-     * @param when    start date of hire period
-     * @param howLong period of hire
-     * @return if deviceDefinition is available or not
-     */
-    public boolean isAvailable(LocalDateTime when, Duration howLong) {
-        if (Objects.isNull(when) || Objects.isNull(howLong)) {
-            return false;
-        }
-        if(hires.isEmpty() || hires.stream().noneMatch(hire->hire.isInHirePeriod(when,howLong))){
-            return true;
-        }
-        return false;
-    }
-
     public long getId() {
         return id;
     }

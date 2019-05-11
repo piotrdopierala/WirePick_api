@@ -2,26 +2,28 @@ package pl.dopierala.wirepickapi.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyHiredException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
+import pl.dopierala.wirepickapi.model.HireEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.repositories.devices.StockRepository;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class StockService {
 
     private StockRepository stockRepository;
-    private UserService userService;
 
     @Autowired
-    public StockService(StockRepository stockRepository, UserService userService) {
+    public StockService(StockRepository stockRepository) {
         this.stockRepository = stockRepository;
-        this.userService = userService;
     }
 
     public Iterable<DeviceItem> findAllStock() {
@@ -47,22 +49,68 @@ public class StockService {
     }
 
     /**
+     * Rents device for given user from supplied date for given Duration
      *
-     * @param itemId Stock item ID that should be hired
-     * @param from Date from witch Stock item should be hired
-     * @param to Date to witch Stock item should be hired
-     * @param userId User ID that rents Stock item
-     * @return 0 if rent is confirmed
-     * @throws UserNotFoundException when user ID is not found.
-     * @throws StockItemIdNotFoundException when stock item ID is not found.
+     * @param deviceId device to rent
+     * @param start    DateTime start of rent period
+     * @param duration Duration of rent period
+     * @param user     User witch rents device
+     * @return 0 - rent succeeded
      */
-    public int hireItem(Long itemId, LocalDateTime from, LocalDateTime to, Long userId) throws UserNotFoundException, StockItemIdNotFoundException {
-        User userRenting = userService.findUserById(userId);
-        DeviceItem stockItemToRent = findStockByItemId(itemId);
+    public int rentItem(Long deviceId, LocalDateTime start, Duration duration, User user) throws StockItemIdNotFoundException, DeviceNotAvailableAlreadyHiredException {
+        DeviceItem itemFoundById = findStockByItemId(deviceId);
+        if (isAvailable(deviceId, start, duration)) {
+            itemFoundById.getHires().add(new HireEvent(start,duration,user));
+            stockRepository.save(itemFoundById);
+            return 0;
+        } else {
+            throw new DeviceNotAvailableAlreadyHiredException();
+        }
+    }
+
+    /**
+     * Rents device for given user between supplied dates
+     *
+     * @param deviceId device to rent
+     * @param start    DateTime start of rent period
+     * @param end      DateTime end of rent period
+     * @param user     User witch rents device
+     * @return 0 - rent succeeded
+     */
+    public int rentItem(Long deviceId, LocalDateTime start, LocalDateTime end, User user) throws StockItemIdNotFoundException, UserNotFoundException, DeviceNotAvailableAlreadyHiredException {
+        return rentItem(deviceId, start, Duration.between(start, end), user);
+    }
 
 
-        stockItemToRent.rent(from, to, userRenting);
-        stockRepository.save(stockItemToRent);
-        return 0;
+    /**
+     * Checks whether device item is available to borrow given start date and period od hire.
+     *
+     * @param itemDeviceId Stock item ID that will be checked if available
+     * @param when         Start date of hire period
+     * @param howLong      Period of hire
+     * @return if deviceDefinition is available or not
+     */
+    public boolean isAvailable(Long itemDeviceId, LocalDateTime when, Duration howLong) {
+
+        if (Objects.isNull(itemDeviceId) || Objects.isNull(when) || Objects.isNull(howLong)) {
+            return false;
+        }
+
+        return isAvailable(itemDeviceId, when, when.plus(howLong));
+    }
+
+    /**
+     * Checks whether device item is available to borrow given start date and period od hire.
+     *
+     * @param itemDeviceId Stock item ID that will be checked if available
+     * @param from         Start date of hire period
+     * @param end          End date of hire period
+     * @return if deviceDefinition is available or not
+     */
+    public boolean isAvailable(Long itemDeviceId, LocalDateTime from, LocalDateTime end) {
+        if (Objects.isNull(itemDeviceId) || Objects.isNull(from) || Objects.isNull(end)) {
+            return false;
+        }
+        return stockRepository.isAvailable(itemDeviceId, from, end);
     }
 }

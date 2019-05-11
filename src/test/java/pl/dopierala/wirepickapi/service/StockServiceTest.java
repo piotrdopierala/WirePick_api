@@ -14,32 +14,28 @@ import pl.dopierala.wirepickapi.SampleUsers;
 import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyHiredException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
-import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
 import pl.dopierala.wirepickapi.model.HireEvent;
-import pl.dopierala.wirepickapi.model.device.DeviceDefinition;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.repositories.devices.StockRepository;
-import pl.dopierala.wirepickapi.repositories.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static pl.dopierala.wirepickapi.SampleStock.getIterableSize;
-import static pl.dopierala.wirepickapi.SampleStock.s2_d1;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StockServiceTest {
 
     @Mock
     private StockRepository stockRepositoryMock;
-
-    @Mock
-    private UserService userServiceMock;
 
     @InjectMocks
     private StockService stockService;
@@ -96,26 +92,16 @@ public class StockServiceTest {
     }
 
     @Test(expected = StockItemIdNotFoundException.class)
-    public void Should_hireItem_ThrowException_IfNoDeviceFound() {
+    public void Should_rentItem_ThrowException_IfNoDeviceFound() {
         final long testDeviceId = 1L;
         final long testUserId = 1L;
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.empty());
-        when(userServiceMock.findUserById(testUserId)).thenReturn(SampleUsers.u1);
 
-        stockService.hireItem(testDeviceId, LocalDateTime.now(), LocalDateTime.now(), testUserId);
-    }
-
-    @Test(expected = UserNotFoundException.class)
-    public void Should_hireItem_ThrowException_IfNoUserFound() {
-        final long testDeviceId = 1L;
-        final long testUserId = 1L;
-        when(userServiceMock.findUserById(testUserId)).thenThrow(UserNotFoundException.class);
-
-        stockService.hireItem(testDeviceId, LocalDateTime.now(), LocalDateTime.now(), testUserId);
+        stockService.rentItem(testDeviceId, LocalDateTime.now(), LocalDateTime.now(), SampleUsers.u1);
     }
 
     @Test(expected = DeviceNotAvailableAlreadyHiredException.class)
-    public void Should_hireItem_ThrowException_IfDeviceAlreadyHired() {
+    public void Should_rentItem_ThrowException_IfDeviceAlreadyHired() {
         final long testDeviceId = 1L;
         final long testUserId = 1L;
 
@@ -127,14 +113,14 @@ public class StockServiceTest {
 
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
 
-        stockService.hireItem(testDeviceId,
+        stockService.rentItem(testDeviceId,
                 LocalDateTime.of(2017, 05, 20, 0, 0),
                 LocalDateTime.of(2017, 05, 21, 0, 0),
-                testUserId);
+                SampleUsers.u1);
     }
 
     @Test
-    public void Should_hireItem_hireSuccessfully() {
+    public void Should_rentItem_hireSuccessfully() {
         final long testDeviceId = 1L;
         final long testUserId = 1L;
         final LocalDateTime hireStartDate = LocalDateTime.of(2017, 05, 20, 0, 0);
@@ -143,16 +129,43 @@ public class StockServiceTest {
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         int beginHiresSize = s1_d1_clone.getHires().size();
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(userServiceMock.findUserById(testUserId)).thenReturn(SampleUsers.u1);
+        when(stockRepositoryMock.isAvailable(testDeviceId,hireStartDate,hireEndDate)).thenReturn(true);
 
-        stockService.hireItem(testDeviceId,
+        stockService.rentItem(testDeviceId,
                 hireStartDate,
                 hireEndDate,
-                testUserId);
+                SampleUsers.u1);
 
         int endHiresSize = s1_d1_clone.getHires().size();
 
-        Assert.assertEquals(beginHiresSize+1,endHiresSize);
+        Assert.assertEquals(beginHiresSize + 1, endHiresSize);
+    }
+
+    @Test
+    public void Should_isAvailable_ReturnTrue_When_DeviceFree() {
+        final long testDeviceId = 1L;
+        final LocalDateTime hireStart = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime hireEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+        final LocalDateTime freeStart = LocalDateTime.of(2017, 06, 21, 0, 0);
+        final LocalDateTime freeEnd = LocalDateTime.of(2017, 06, 22, 0, 0);
+
+        DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
+        List<HireEvent> hires = s1_d1_clone.getHires();
+        hires.add(new HireEvent(hireStart,
+                hireEnd,
+                SampleUsers.u1));
+
+        when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
+        when(stockRepositoryMock.isAvailable(testDeviceId,freeStart,freeEnd)).thenReturn(true);
+
+        Assert.assertTrue(stockService.isAvailable(testDeviceId, freeStart, freeEnd));
+    }
+
+    //thould be tested with H2 test DB. Not on real data.
+    //because isAvailable works on DB
+    @Test
+    public void Should_isAvailable_ReturnFalse_When_DeviceAlreadyHired() {
+
     }
 
 
