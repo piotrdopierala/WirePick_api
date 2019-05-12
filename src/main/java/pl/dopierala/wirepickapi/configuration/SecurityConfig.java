@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import pl.dopierala.wirepickapi.model.user.Roles;
 import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.service.UserService;
 
@@ -32,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/secret")
-                .hasRole("USER")
+                .hasRole("ADMIN")
                 .antMatchers("/test")
                 .permitAll()
                 .and()
@@ -44,17 +45,27 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    private void initDefaultUser(){
-        if(userDetailsService.isUserExists("admin")){
-            return;
-        }else{
+    private void initDefaultUser() {
+        if (!userDetailsService.isUserExists("admin")) {
             User adminUser = User.builder()
-                    .withFirstName("admin")
-                    .withLastName("admin")
+                    .withFirstName("admin_name")
+                    .withLastName("admin_lastName")
                     .withLogin("admin")
+                    .withRole(Roles.ADMIN)
                     .withPassword(bCryptPasswordEncoder.encode("admin"))
                     .build();
             userDetailsService.saveUser(adminUser);
+        }
+
+        if (!userDetailsService.isUserExists("user")) {
+            User normalUser = User.builder()
+                    .withFirstName("user_name")
+                    .withLastName("user_lastName")
+                    .withLogin("user")
+                    .withRole(Roles.USER)
+                    .withPassword(bCryptPasswordEncoder.encode("user"))
+                    .build();
+            userDetailsService.saveUser(normalUser);
         }
     }
 }

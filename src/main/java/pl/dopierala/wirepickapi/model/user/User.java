@@ -4,10 +4,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,10 +23,13 @@ public class User implements UserDetails {
     private String login;
     @NotNull
     private String password;
+    @Enumerated(EnumType.STRING)
+    private Roles role;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        //return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_"+this.role.name()));
     }
 
     @Override
@@ -69,7 +69,9 @@ public class User implements UserDetails {
     public static final class Builder{
         private static User user = new User();
         public User build(){
-            return user;
+            User userToReturn = user;
+            user = new User();
+            return userToReturn;
         }
 
         public Builder withFirstName(String firstName){
@@ -89,6 +91,11 @@ public class User implements UserDetails {
 
         public Builder withPassword(String password){
             user.setPassword(password);
+            return this;
+        }
+
+        public Builder withRole(Roles role){
+            user.setRole(role);
             return this;
         }
 
@@ -154,4 +161,11 @@ public class User implements UserDetails {
         this.password = password;
     }
 
+    public Roles getRole() {
+        return role;
+    }
+
+    public void setRole(Roles role) {
+        this.role = role;
+    }
 }
