@@ -24,4 +24,8 @@ public class DeviceService {
         return devicesDefinitionRepository.findById(id);
     }
 
+    public DeviceDefinition saveNewDefinition(DeviceDefinition newDeviceDefinition){
+        return devicesDefinitionRepository.save(newDeviceDefinition);
+    }
+
 }

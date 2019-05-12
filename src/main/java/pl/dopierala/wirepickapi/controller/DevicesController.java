@@ -18,18 +18,19 @@ public class DevicesController {
     }
 
     @GetMapping("/all")
-    public Iterable<DeviceDefinition> getAllDevices(){
+    public Iterable<DeviceDefinition> getAllDevices() {
         return deviceService.findAllDevices();
     }
 
     @GetMapping("/{deviceId}")
-    public Optional<DeviceDefinition> getAllDevices(@PathVariable Long deviceId){
+    public Optional<DeviceDefinition> getAllDevices(@PathVariable Long deviceId) {
         return deviceService.findDeviceById(deviceId);
     }
 
-    //TODO finish new definition
-    @PutMapping("")
-    public long putNewDeviceDefinition(@RequestBody DeviceDefinition newDeviceDefinition){
-        return 0L;
+    //TODO write test
+    @PostMapping("/add")
+    public DeviceDefinition putNewDeviceDefinition(@RequestBody DeviceDefinition newDeviceDefinition) {
+        newDeviceDefinition.setId(0);
+        return deviceService.saveNewDefinition(newDeviceDefinition);
     }
 }

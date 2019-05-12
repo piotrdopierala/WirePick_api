@@ -21,7 +21,7 @@ import java.util.Optional;
 public class StockService {
 
     private StockRepository stockRepository;
-    private HireRepository hireRepository;
+    private HireRepository hireRepository; //TODO its service, hireRepository should not be here.
 
     @Autowired
     public StockService(StockRepository stockRepository, HireRepository hireRepository) {
@@ -53,7 +53,7 @@ public class StockService {
     }
 
     public Iterable<DeviceItem> findFreeStockByDeviceDefinition(Long deviceDefinitionId, LocalDateTime from, LocalDateTime to) {
-        return stockRepository.findFreeItemsByDeviceIdAndHirePeriod(deviceDefinitionId,from,to);
+        return stockRepository.findFreeItemsByDeviceIdAndHirePeriod(deviceDefinitionId, from, to);
     }
 
     /**
@@ -118,5 +118,11 @@ public class StockService {
             return false;
         }
         return (hireRepository.numberOfOverlappingHirePeriods(itemId, from, end) == 0);
+    }
+
+    //TODO write test
+    public DeviceItem saveNewItem(DeviceItem newItem) {
+        newItem.setId(0);
+        return stockRepository.save(newItem);
     }
 }
