@@ -1,15 +1,13 @@
 package pl.dopierala.wirepickapi.model.device;
 
-import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyHiredException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import pl.dopierala.wirepickapi.model.HireEvent;
-import pl.dopierala.wirepickapi.model.user.User;
 
 import javax.persistence.*;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 public class DeviceItem implements Cloneable {

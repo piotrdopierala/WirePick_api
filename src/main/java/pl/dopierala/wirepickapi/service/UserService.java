@@ -10,6 +10,7 @@ import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
 import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.repositories.user.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,6 +22,10 @@ public class UserService implements UserDetailsService {
     public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+    }
+
+    public List<User> findAllUsers(){
+        return userRepository.findAll();
     }
 
     public User findUserByLogin(String login) throws UserNotFoundException {

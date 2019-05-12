@@ -1,5 +1,6 @@
 package pl.dopierala.wirepickapi.model.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,13 +23,14 @@ public class User implements UserDetails {
     @NotNull
     private String login;
     @NotNull
+    @JsonIgnore
     private String password;
     @Enumerated(EnumType.STRING)
     private Roles role;
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        //return Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
         return Collections.singleton(new SimpleGrantedAuthority("ROLE_"+this.role.name()));
     }
 
@@ -78,27 +80,26 @@ public class User implements UserDetails {
             user.setFirstName(firstName);
             return this;
         }
-
         public Builder withLastName(String lastName){
             user.setLastName(lastName);
             return this;
         }
-
+        public Builder withEmail(String email){
+            user.setEmail(email);
+            return this;
+        }
         public Builder withLogin(String login){
             user.setLogin(login);
             return this;
         }
-
         public Builder withPassword(String password){
             user.setPassword(password);
             return this;
         }
-
         public Builder withRole(Roles role){
             user.setRole(role);
             return this;
         }
-
     }
 
     public long getId() {

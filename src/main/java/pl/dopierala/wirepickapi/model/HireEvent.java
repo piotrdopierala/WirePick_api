@@ -82,6 +82,14 @@ public class HireEvent implements Comparable<HireEvent> {
         return hireStart;
     }
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public void setHireStart(LocalDateTime hireStart) {
         this.hireStart = hireStart;
     }
