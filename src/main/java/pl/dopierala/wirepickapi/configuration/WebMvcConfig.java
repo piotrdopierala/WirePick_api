@@ -34,7 +34,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @EventListener(ApplicationReadyEvent.class)
     public void configSampleDevices() {
 
-        if(Utils.getIterableSize(stockRepository.findAll())<4){
+        if(Utils.getIterableSize(stockRepository.findAll())>4){
             return;
         }
 

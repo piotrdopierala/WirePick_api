@@ -20,7 +20,7 @@ public class DeviceItem implements Cloneable {
     private DeviceDefinition deviceDefinition;
     private LocalDateTime dateAddedToLibrary;
     private String localization;
-    @OneToMany(cascade = {CascadeType.ALL})
+    @OneToMany(mappedBy = "itemHired", cascade = {CascadeType.ALL})
     private List<HireEvent> hires; //todo consider change to Map<LocalDate,HireEvent> and use TreeMap implementation. Key is hire start date, automatic sorting
 
     public DeviceItem() {

@@ -1,5 +1,6 @@
 package pl.dopierala.wirepickapi.model;
 
+import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
 
 import javax.persistence.*;
@@ -15,6 +16,9 @@ public class HireEvent implements Comparable<HireEvent> {
     private LocalDateTime hireStart;
     private LocalDateTime hireEnd;
     private String notes;
+    @ManyToOne
+    @JoinColumn
+    private DeviceItem itemHired;
     @ManyToOne
     private User user;
 
