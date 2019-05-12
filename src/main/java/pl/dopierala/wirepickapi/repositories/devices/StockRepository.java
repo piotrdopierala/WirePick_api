@@ -10,24 +10,18 @@ import java.time.LocalDateTime;
 
 @Repository
 public interface StockRepository extends CrudRepository<DeviceItem, Long> {
-    Iterable<DeviceItem> findByDeviceDefinition_Id(Long id);
-
-
-    //TODO finish test, sql from code below
+    Iterable<DeviceItem> findByDeviceDefinition_Id(Long deviceDefinitionId);
 
     /**
-     * Return number of overlapping period.
-     * 0 if its available.
+     * Returns collection od DeviceItems, that are available to hire
      *
-     * @param itemId ID of item to check
-     * @param from   start period to check
-     * @param to     end period to check
-     * @return 0 if is available, otherwise number of overlapping periods.
+     * @param deviceId Device definition ID of witch to find available items
+     * @param from start period to check for availability
+     * @param to end period to check for availability
+     * @return Collection of DeviceItems available to rent
      */
-    @Query(value = "SELECT count(1) FROM wirepick.hire_event he " +
-            "WHERE (:from <= hire_end AND :to >= hire_start) AND he.item_hired_id=:itemId"
-            , nativeQuery = true)
-    Integer numberOfOverlappingHirePeriods(@Param("itemId") Long itemId,
-                                           @Param("from") LocalDateTime from,
-                                           @Param("to") LocalDateTime to);
+    @Query(value = "SELECT * FROM device_item di WHERE di.device_definition_id=:deviceId AND NOT EXISTS (SELECT * FROM hire_event he WHERE di.id=he.item_hired_id AND (:from <= hire_end AND :to >= hire_start))",nativeQuery = true)
+    Iterable<DeviceItem> findFreeItemsByDeviceIdAndHirePeriod(@Param("deviceId") Long deviceId,
+                                                              @Param("from") LocalDateTime from,
+                                                              @Param("to") LocalDateTime to);
 }

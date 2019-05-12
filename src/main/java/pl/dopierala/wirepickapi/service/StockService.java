@@ -9,6 +9,7 @@ import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
 import pl.dopierala.wirepickapi.model.HireEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
+import pl.dopierala.wirepickapi.repositories.devices.HireRepository;
 import pl.dopierala.wirepickapi.repositories.devices.StockRepository;
 
 import java.time.Duration;
@@ -20,10 +21,13 @@ import java.util.Optional;
 public class StockService {
 
     private StockRepository stockRepository;
+    private HireRepository hireRepository;
 
     @Autowired
-    public StockService(StockRepository stockRepository) {
+    public StockService(StockRepository stockRepository, HireRepository hireRepository) {
+
         this.stockRepository = stockRepository;
+        this.hireRepository = hireRepository;
     }
 
     public Iterable<DeviceItem> findAllStock() {
@@ -48,8 +52,8 @@ public class StockService {
         }
     }
 
-    public Iterable<DeviceItem> findFreeStockByDeviceDefinition(Long deviceDefinitionId, LocalDateTime from, LocalDateTime end) {
-        return null; //todo finish
+    public Iterable<DeviceItem> findFreeStockByDeviceDefinition(Long deviceDefinitionId, LocalDateTime from, LocalDateTime to) {
+        return stockRepository.findFreeItemsByDeviceIdAndHirePeriod(deviceDefinitionId,from,to);
     }
 
     /**
@@ -113,6 +117,6 @@ public class StockService {
         if (Objects.isNull(itemId) || Objects.isNull(from) || Objects.isNull(end)) {
             return false;
         }
-        return (stockRepository.numberOfOverlappingHirePeriods(itemId, from, end) == 0);
+        return (hireRepository.numberOfOverlappingHirePeriods(itemId, from, end) == 0);
     }
 }

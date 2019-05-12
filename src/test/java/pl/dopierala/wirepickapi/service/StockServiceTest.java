@@ -11,15 +11,18 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import pl.dopierala.wirepickapi.SampleStock;
 import pl.dopierala.wirepickapi.SampleUsers;
+import pl.dopierala.wirepickapi.Utils;
 import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyHiredException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
 import pl.dopierala.wirepickapi.model.HireEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
+import pl.dopierala.wirepickapi.repositories.devices.HireRepository;
 import pl.dopierala.wirepickapi.repositories.devices.StockRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,13 +32,15 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
-import static pl.dopierala.wirepickapi.SampleStock.getIterableSize;
+import static pl.dopierala.wirepickapi.SampleStock.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StockServiceTest {
 
     @Mock
     private StockRepository stockRepositoryMock;
+    @Mock
+    private HireRepository hireRepositoryMock;
 
     @InjectMocks
     private StockService stockService;
@@ -52,7 +57,7 @@ public class StockServiceTest {
         Iterable<DeviceItem> allItemsStock = stockService.findAllStock();
 
         assertThat(allItemsStock, Matchers.hasItem(SampleStock.s1_d1));
-        assertThat(allItemsStock, Matchers.hasItem(SampleStock.s2_d1));
+        assertThat(allItemsStock, Matchers.hasItem(s2_d1));
         assertThat(allItemsStock, Matchers.hasItem(SampleStock.s3_d1));
         assertThat(allItemsStock, Matchers.hasItem(SampleStock.s4_d2));
         assertThat(allItemsStock, Matchers.hasItem(SampleStock.s5_d2));
@@ -61,9 +66,9 @@ public class StockServiceTest {
 
     @Test
     public void Should_findStockByItemId_ReturnConcreteDeviceItem() {
-        when(stockRepositoryMock.findById(2L)).thenReturn(Optional.ofNullable(SampleStock.s2_d1));
+        when(stockRepositoryMock.findById(2L)).thenReturn(Optional.ofNullable(s2_d1));
         DeviceItem stockItemFoundByItemId = stockService.findStockByItemId(2L);
-        assertThat(stockItemFoundByItemId, is(CoreMatchers.equalTo(SampleStock.s2_d1)));
+        assertThat(stockItemFoundByItemId, is(CoreMatchers.equalTo(s2_d1)));
     }
 
     @Test(expected = StockItemIdNotFoundException.class)
@@ -113,7 +118,7 @@ public class StockServiceTest {
                 SampleUsers.u1));
 
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(1);
+        when(hireRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(1);
 
         stockService.rentItem(testDeviceId,
                 hireStartDate,
@@ -131,7 +136,7 @@ public class StockServiceTest {
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         int beginHiresSize = s1_d1_clone.getHires().size();
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(0);
+        when(hireRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(0);
 
         stockService.rentItem(testDeviceId,
                 hireStartDate,
@@ -158,7 +163,7 @@ public class StockServiceTest {
                 SampleUsers.u1));
 
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,freeStart,freeEnd)).thenReturn(0);
+        when(hireRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,freeStart,freeEnd)).thenReturn(0);
 
         Assert.assertTrue(stockService.isAvailable(testDeviceId, freeStart, freeEnd));
     }
@@ -170,5 +175,15 @@ public class StockServiceTest {
 
     }
 
+    @Test
+    public void Should_findFreeStockByDeviceDefinition_ReturnAvailableItems(){
+        final long testDeviceId = 1L;
+        final LocalDateTime hireStart = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime hireEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+
+        when(stockRepositoryMock.findFreeItemsByDeviceIdAndHirePeriod(testDeviceId,hireStart,hireEnd)).thenReturn(Arrays.asList(s1_d1, s2_d1));
+
+        Assert.assertEquals(Utils.getIterableSize(stockService.findFreeStockByDeviceDefinition(testDeviceId,hireStart,hireEnd)),2);
+    }
 
 }

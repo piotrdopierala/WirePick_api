@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.HireDateParseException;
+import pl.dopierala.wirepickapi.model.device.DeviceDefinition;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
+import pl.dopierala.wirepickapi.repositories.devices.HireRepository;
 import pl.dopierala.wirepickapi.service.DeviceService;
 import pl.dopierala.wirepickapi.service.StockService;
 import pl.dopierala.wirepickapi.service.UserService;
@@ -14,12 +16,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/stock")
 public class StockController {
 
     private StockService stockService;
+    private DeviceService devicesService;
+    private HireRepository hireRepository;
     private UserService userService;
 
     @Autowired
@@ -51,12 +56,9 @@ public class StockController {
         LocalDateTime hireDateFrom = parseDate(deviceHireFrom);
         LocalDateTime hireDateTo = parseDate(deviceHireTo);
 
-        Iterable<DeviceItem> stockByDeviceDefinition = stockService.findStockByDeviceDefinition(deviceDefinitionId);
-
-        return null;//todo finish
+        return stockService.findFreeStockByDeviceDefinition(deviceDefinitionId, hireDateFrom, hireDateTo);
     }
 
-    //TODO what happens when deviceItemId or userId can't be parsed to Long? Intercept this exception.
     @PutMapping("/hire/{deviceItemId}/user/{userId}/from/{deviceHireFrom}/to/{deviceHireTo}")
     public ResponseEntity putHireDevice(@PathVariable Long deviceItemId,
                                         @PathVariable Long userId,

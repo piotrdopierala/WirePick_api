@@ -3,6 +3,7 @@ package pl.dopierala.wirepickapi.exceptions.definitions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.HireDateParseException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
@@ -16,7 +17,7 @@ import java.util.Map;
 public class ExceptionAOPHandler {
 
     @ExceptionHandler(HireDateParseException.class)
-    public ResponseEntity hireDateParseException( final HireDateParseException e, final HttpServletResponse response){
+    public ResponseEntity hireDateParseExceptionHandler( final HireDateParseException e, final HttpServletResponse response){
         Map<String,Object> body = new HashMap<>();
         body.put("date:", LocalDateTime.now());
         body.put("exception:",e.getClass().getSimpleName());
@@ -26,22 +27,27 @@ public class ExceptionAOPHandler {
     }
 
     @ExceptionHandler(StockItemIdNotFoundException.class)
-    public ResponseEntity stockItemIdNotFoundException(final StockItemIdNotFoundException e, final HttpServletResponse response){
+    public ResponseEntity stockItemIdNotFoundExceptionHandler(final StockItemIdNotFoundException e, final HttpServletResponse response){
         return prepareResponseEntity(e.getClass().getSimpleName(), e.getMessage(), e);
     }
 
     @ExceptionHandler(StockItemByDeviceIdNotFoundException.class)
-    public ResponseEntity stockItemByDeviceIdNotFoundException(final StockItemByDeviceIdNotFoundException e, final HttpServletResponse response){
+    public ResponseEntity stockItemByDeviceIdNotFoundExceptionHandler(final StockItemByDeviceIdNotFoundException e, final HttpServletResponse response){
         return prepareResponseEntity(e.getClass().getSimpleName(), e.getMessage(), e);
     }
 
     @ExceptionHandler(DeviceNotAvailableAlreadyHiredException.class)
-    public ResponseEntity deviceAlreadyHiredException(final DeviceNotAvailableAlreadyHiredException e, final HttpServletResponse response){
+    public ResponseEntity deviceAlreadyHiredExceptionHandler(final DeviceNotAvailableAlreadyHiredException e, final HttpServletResponse response){
         return prepareResponseEntity(e.getClass().getSimpleName(),e.getMessage(),e);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity userNotFound(final UserNotFoundException e, final HttpServletResponse response){
+    public ResponseEntity userNotFoundHandler(final UserNotFoundException e, final HttpServletResponse response){
+        return prepareResponseEntity(e.getClass().getSimpleName(),e.getMessage(),e);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity methodArgumentTypeMismatchExceptionHandler(final MethodArgumentTypeMismatchException e, final HttpServletResponse response){
         return prepareResponseEntity(e.getClass().getSimpleName(),e.getMessage(),e);
     }
 
