@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import pl.dopierala.wirepickapi.Utils;
 import pl.dopierala.wirepickapi.model.device.DeviceDefinition;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.repositories.devices.DevicesDefinitionRepository;
@@ -32,6 +33,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @EventListener(ApplicationReadyEvent.class)
     public void configSampleDevices() {
+
+        if(Utils.getIterableSize(stockRepository.findAll())<4){
+            return;
+        }
+
+        stockRepository.deleteAll();
+        devicesDefinitionRepository.deleteAll();
+
         DeviceDefinition deviceDef1 = new DeviceDefinition();
         deviceDef1.setName("Zadajnik prądowy INMEL50");
         deviceDef1.setDescription("Opis zadajnika");
