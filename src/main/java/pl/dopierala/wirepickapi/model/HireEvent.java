@@ -25,16 +25,18 @@ public class HireEvent implements Comparable<HireEvent> {
     public HireEvent() {
     }
 
-    public HireEvent(LocalDateTime hireStart, LocalDateTime hireEnd, User user) {
+    public HireEvent(DeviceItem itemHired, LocalDateTime hireStart, LocalDateTime hireEnd, User user) {
         this.hireStart = hireStart;
         this.hireEnd = hireEnd;
         this.user = user;
+        this.itemHired = itemHired;
     }
 
-    public HireEvent(LocalDateTime hireStart, Duration duration, User user) {
+    public HireEvent(DeviceItem itemHired, LocalDateTime hireStart, Duration duration, User user) {
         this.hireStart = hireStart;
         this.hireEnd = hireStart.plus(duration);
         this.user = user;
+        this.itemHired = itemHired;
     }
 
     public boolean isInHirePeriod() {

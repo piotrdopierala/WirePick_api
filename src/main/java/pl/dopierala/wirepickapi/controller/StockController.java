@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.HireDateParseException;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
+import pl.dopierala.wirepickapi.service.DeviceService;
 import pl.dopierala.wirepickapi.service.StockService;
 import pl.dopierala.wirepickapi.service.UserService;
 
@@ -42,25 +43,44 @@ public class StockController {
         return stockService.findStockByDeviceDefinition(deviceDefinitionId);
     }
 
+    @GetMapping("/device/{deviceDefinitionId}/free/from/{deviceHireFrom}/to/{deviceHireTo}")
+    public Iterable<DeviceItem> getAllAvailableItems(@PathVariable Long deviceDefinitionId,
+                                                     @PathVariable String deviceHireFrom,
+                                                     @PathVariable String deviceHireTo) throws HireDateParseException {
+
+        LocalDateTime hireDateFrom = parseDate(deviceHireFrom);
+        LocalDateTime hireDateTo = parseDate(deviceHireTo);
+
+        Iterable<DeviceItem> stockByDeviceDefinition = stockService.findStockByDeviceDefinition(deviceDefinitionId);
+
+        return null;//todo finish
+    }
+
+    //TODO what happens when deviceItemId or userId can't be parsed to Long? Intercept this exception.
     @PutMapping("/hire/{deviceItemId}/user/{userId}/from/{deviceHireFrom}/to/{deviceHireTo}")
     public ResponseEntity putHireDevice(@PathVariable Long deviceItemId,
                                         @PathVariable Long userId,
                                         @PathVariable String deviceHireFrom,
                                         @PathVariable String deviceHireTo) throws HireDateParseException {
-        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
-        LocalDateTime hireDateFrom;
-        LocalDateTime hireDateTo;
-        try {
-            hireDateFrom = LocalDate.parse(deviceHireFrom, formatter).atStartOfDay();
-            hireDateTo = LocalDate.parse(deviceHireTo, formatter).atStartOfDay();
-        } catch (DateTimeParseException e) {
-            throw new HireDateParseException("" + e.getParsedString());
-        }
+
+        LocalDateTime hireDateFrom = parseDate(deviceHireFrom);
+        LocalDateTime hireDateTo = parseDate(deviceHireTo);
 
         User userById = userService.findUserById(userId);
 
         stockService.rentItem(deviceItemId, hireDateFrom, hireDateTo, userById);
 
         return ResponseEntity.accepted().body("Device Hired");
+    }
+
+    private LocalDateTime parseDate(String dateToParse) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+        LocalDateTime parsedDate;
+        try {
+            parsedDate = LocalDate.parse(dateToParse, formatter).atStartOfDay();
+        } catch (DateTimeParseException e) {
+            throw new HireDateParseException("" + e.getParsedString());
+        }
+        return parsedDate;
     }
 }

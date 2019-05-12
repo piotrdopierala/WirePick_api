@@ -40,6 +40,11 @@ public class ExceptionAOPHandler {
         return prepareResponseEntity(e.getClass().getSimpleName(),e.getMessage(),e);
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity userNotFound(final UserNotFoundException e, final HttpServletResponse response){
+        return prepareResponseEntity(e.getClass().getSimpleName(),e.getMessage(),e);
+    }
+
     private ResponseEntity prepareResponseEntity(String simpleName, String message, RuntimeException e) {
         Map<String,Object> body = new HashMap<>();
         body.put("date:", LocalDateTime.now());

@@ -103,19 +103,21 @@ public class StockServiceTest {
     @Test(expected = DeviceNotAvailableAlreadyHiredException.class)
     public void Should_rentItem_ThrowException_IfDeviceAlreadyHired() {
         final long testDeviceId = 1L;
-        final long testUserId = 1L;
+        final LocalDateTime hireStartDate = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime hireEndDate = LocalDateTime.of(2017, 05, 21, 0, 0);
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         List<HireEvent> hires = s1_d1_clone.getHires();
-        hires.add(new HireEvent(LocalDateTime.of(2017, 05, 20, 0, 0),
+        hires.add(new HireEvent(s1_d1_clone,LocalDateTime.of(2017, 05, 20, 0, 0),
                 LocalDateTime.of(2017, 05, 22, 0, 0),
                 SampleUsers.u1));
 
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
+        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(1);
 
         stockService.rentItem(testDeviceId,
-                LocalDateTime.of(2017, 05, 20, 0, 0),
-                LocalDateTime.of(2017, 05, 21, 0, 0),
+                hireStartDate,
+                hireEndDate,
                 SampleUsers.u1);
     }
 
@@ -129,7 +131,7 @@ public class StockServiceTest {
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         int beginHiresSize = s1_d1_clone.getHires().size();
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(1);
+        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(0);
 
         stockService.rentItem(testDeviceId,
                 hireStartDate,
@@ -151,17 +153,17 @@ public class StockServiceTest {
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         List<HireEvent> hires = s1_d1_clone.getHires();
-        hires.add(new HireEvent(hireStart,
+        hires.add(new HireEvent(s1_d1_clone,hireStart,
                 hireEnd,
                 SampleUsers.u1));
 
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,freeStart,freeEnd)).thenReturn(1);
+        when(stockRepositoryMock.numberOfOverlappingHirePeriods(testDeviceId,freeStart,freeEnd)).thenReturn(0);
 
         Assert.assertTrue(stockService.isAvailable(testDeviceId, freeStart, freeEnd));
     }
 
-    //thould be tested with H2 test DB. Not on real data.
+    //todo should be tested with H2 test DB. Not on real data.
     //because numberOfOverlappingHirePeriods works on DB
     @Test
     public void Should_isAvailable_ReturnFalse_When_DeviceAlreadyHired() {

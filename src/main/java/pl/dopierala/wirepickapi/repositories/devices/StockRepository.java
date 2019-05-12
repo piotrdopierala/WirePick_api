@@ -9,7 +9,7 @@ import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import java.time.LocalDateTime;
 
 @Repository
-public interface StockRepository extends CrudRepository<DeviceItem,Long> {
+public interface StockRepository extends CrudRepository<DeviceItem, Long> {
     Iterable<DeviceItem> findByDeviceDefinition_Id(Long id);
 
 
@@ -20,13 +20,13 @@ public interface StockRepository extends CrudRepository<DeviceItem,Long> {
      * 0 if its available.
      *
      * @param itemId ID of item to check
-     * @param from start period to check
-     * @param to end period to check
+     * @param from   start period to check
+     * @param to     end period to check
      * @return 0 if is available, otherwise number of overlapping periods.
      */
-    @Query(value="SELECT count(1) FROM wirepick.hire_event he JOIN wirepick.device_item_hires dh ON dh.hires_id=he.id " +
-            "WHERE (:from <= hire_end AND :to >= hire_start) AND dh.device_item_id=:itemId"
-            ,nativeQuery = true)
+    @Query(value = "SELECT count(1) FROM wirepick.hire_event he " +
+            "WHERE (:from <= hire_end AND :to >= hire_start) AND he.item_hired_id=:itemId"
+            , nativeQuery = true)
     Integer numberOfOverlappingHirePeriods(@Param("itemId") Long itemId,
                                            @Param("from") LocalDateTime from,
                                            @Param("to") LocalDateTime to);

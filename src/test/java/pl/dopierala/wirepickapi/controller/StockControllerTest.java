@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import pl.dopierala.wirepickapi.SampleStock;
 import pl.dopierala.wirepickapi.SampleUsers;
 import pl.dopierala.wirepickapi.configuration.WebMvcConfig;
+import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
 import pl.dopierala.wirepickapi.service.StockService;
 import pl.dopierala.wirepickapi.service.UserService;
 
@@ -87,11 +88,6 @@ public class StockControllerTest {
         mockMvc.perform(put(url))
                 .andDo(print())
                 .andExpect(status().isAccepted());
-    }
-
-    @Test
-    public void Should_putHireDevice_throwException_when_UserNotFound(){
-        //todo finish test
     }
 
 }
