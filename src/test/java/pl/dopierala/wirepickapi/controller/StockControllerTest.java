@@ -47,14 +47,14 @@ public class StockControllerTest {
     }
 
     @Test
-    public void Should_getAllDevices_return_All_Devices() throws Exception {
+    public void Should_getAllDevices_return_All_DevicesOnStock() throws Exception {
         when(stockService.findAllStock()).thenReturn(SampleStock.sampleStock);
 
         mockMvc.perform(get("/api/stock/all"))
                 .andDo(print())
-        .andExpect(jsonPath("$").value(hasSize(5)))
-        .andExpect(jsonPath("$..name").value(hasItem("mock1")))
-        .andExpect(jsonPath("$..deviceDefinition.id").value(hasItem(1)));
+                .andExpect(jsonPath("$").value(hasSize(5)))
+                .andExpect(jsonPath("$..name").value(hasItem("mock1")))
+                .andExpect(jsonPath("$..deviceDefinition.id").value(hasItem(1)));
     }
 
 

@@ -32,9 +32,9 @@ public class StockController {
         return stockService.findAllStock();
     }
 
-    @GetMapping("/{deviceItemId}")
-    public DeviceItem getByItemId(@PathVariable Long deviceItemId) {
-        return stockService.findStockByItemId(deviceItemId);
+    @GetMapping("/{stockItemId}")
+    public DeviceItem getByItemId(@PathVariable Long stockItemId) {
+        return stockService.findStockByItemId(stockItemId);
     }
 
     @GetMapping("/device/{deviceDefinitionId}")
@@ -53,8 +53,8 @@ public class StockController {
         return stockService.findFreeStockByDeviceDefinition(deviceDefinitionId, hireDateFrom, hireDateTo);
     }
 
-    @PutMapping("/hire/{deviceItemId}/user/{userId}/from/{deviceHireFrom}/to/{deviceHireTo}")
-    public ResponseEntity putHireDevice(@PathVariable Long deviceItemId,
+    @PutMapping("/hire/{stockItemId}/user/{userId}/from/{deviceHireFrom}/to/{deviceHireTo}")
+    public ResponseEntity putHireDevice(@PathVariable Long stockItemId,
                                         @PathVariable Long userId,
                                         @PathVariable String deviceHireFrom,
                                         @PathVariable String deviceHireTo) throws HireDateParseException {
@@ -64,7 +64,7 @@ public class StockController {
 
         User userById = userService.findUserById(userId);
 
-        stockService.rentItem(deviceItemId, hireDateFrom, hireDateTo, userById);
+        stockService.rentItem(stockItemId, hireDateFrom, hireDateTo, userById);
 
         return ResponseEntity.accepted().body("Device Hired");
     }

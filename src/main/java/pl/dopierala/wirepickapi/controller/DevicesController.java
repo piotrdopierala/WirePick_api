@@ -1,6 +1,7 @@
 package pl.dopierala.wirepickapi.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.dopierala.wirepickapi.model.device.DeviceDefinition;
 import pl.dopierala.wirepickapi.service.DeviceService;
@@ -23,14 +24,14 @@ public class DevicesController {
     }
 
     @GetMapping("/{deviceId}")
-    public Optional<DeviceDefinition> getAllDevices(@PathVariable Long deviceId) {
+    public Optional<DeviceDefinition> getByDeviceId(@PathVariable Long deviceId) {
         return deviceService.findDeviceById(deviceId);
     }
 
-    //TODO write test
-    @PostMapping("/add")
-    public DeviceDefinition putNewDeviceDefinition(@RequestBody DeviceDefinition newDeviceDefinition) {
+    @PutMapping("/add")
+    public ResponseEntity putNewDeviceDefinition(@RequestBody DeviceDefinition newDeviceDefinition) {
         newDeviceDefinition.setId(0);
-        return deviceService.saveNewDefinition(newDeviceDefinition);
+        deviceService.saveNewDefinition(newDeviceDefinition);
+        return ResponseEntity.accepted().body("Device definition created");
     }
 }
