@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.dopierala.wirepickapi.exceptions.definitions.UserLoginAlreadyExists;
 import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
 import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.repositories.user.UserRepository;
@@ -24,7 +25,7 @@ public class UserService implements UserDetailsService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    public List<User> findAllUsers(){
+    public List<User> findAllUsers() {
         return userRepository.findAll();
     }
 
@@ -37,7 +38,7 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public boolean isUserExists(String login){
+    public boolean isUserExists(String login) {
         Optional<User> userFoundByLogin = userRepository.findByLogin(login);
         return userFoundByLogin.isPresent();
     }
@@ -51,8 +52,12 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void saveUser(User user) {
-        userRepository.save(user);
+    public void saveNewUser(User user) {
+        if (isUserExists(user.getLogin())) {
+            throw new UserLoginAlreadyExists("User with login " + user.getLogin() + " already exists.");
+        } else {
+            userRepository.save(user);
+        }
     }
 
     @Override

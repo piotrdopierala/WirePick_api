@@ -54,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .withRole(Roles.ADMIN)
                     .withPassword(bCryptPasswordEncoder.encode("admin"))
                     .build();
-            userDetailsService.saveUser(adminUser);
+            userDetailsService.saveNewUser(adminUser);
         }
 
         if (!userDetailsService.isUserExists("user")) {
@@ -65,7 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .withRole(Roles.USER)
                     .withPassword(bCryptPasswordEncoder.encode("user"))
                     .build();
-            userDetailsService.saveUser(normalUser);
+            userDetailsService.saveNewUser(normalUser);
         }
     }
 }

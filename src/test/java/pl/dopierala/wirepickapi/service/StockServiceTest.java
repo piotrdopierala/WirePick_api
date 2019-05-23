@@ -1,5 +1,6 @@
 package pl.dopierala.wirepickapi.service;
 
+import org.assertj.core.util.Lists;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
@@ -172,6 +173,26 @@ public class StockServiceTest {
     //because numberOfOverlappingHirePeriods works on DB
     @Test
     public void Should_isAvailable_ReturnFalse_When_DeviceAlreadyHired() {
+
+    }
+
+
+    @Test
+    public void Should_return_User_HiresEvents(){
+        final LocalDateTime hireStart = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime hireEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+
+        DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
+        List<HireEvent> hires = s1_d1_clone.getHires();
+        hires.add(new HireEvent(s1_d1_clone,hireStart,
+                hireEnd,
+                SampleUsers.u2));
+
+        when(hireRepositoryMock.findAllByUser(SampleUsers.u1)).thenReturn(Lists.emptyList());
+        when(hireRepositoryMock.findAllByUser(SampleUsers.u2)).thenReturn(hires);
+
+        Assert.assertEquals(Lists.emptyList(),stockService.findAllUserHires(SampleUsers.u1));
+        Assert.assertEquals(hires,stockService.findAllUserHires(SampleUsers.u2));
 
     }
 

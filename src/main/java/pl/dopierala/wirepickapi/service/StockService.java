@@ -21,7 +21,7 @@ import java.util.Optional;
 public class StockService {
 
     private StockRepository stockRepository;
-    private HireRepository hireRepository; //TODO its service, hireRepository should not be here.
+    private HireRepository hireRepository; //TODO its service, hireRepository should not be here. Change to at least hireService
 
     @Autowired
     public StockService(StockRepository stockRepository, HireRepository hireRepository) {
@@ -119,6 +119,16 @@ public class StockService {
         }
         return (hireRepository.numberOfOverlappingHirePeriods(itemId, from, end) == 0);
     }
+
+    /**
+     * Gets all hires made by given user
+     * @param user User of witch all hires will be found
+     * @return Iterable of HireEvent
+     */
+    public Iterable<HireEvent> findAllUserHires(User user) {
+        return hireRepository.findAllByUser(user);
+    }
+
 
     //TODO write test
     public DeviceItem saveNewItem(DeviceItem newItem) {

@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.dopierala.wirepickapi.model.HireEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
+import pl.dopierala.wirepickapi.model.user.User;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -13,6 +14,8 @@ import java.util.Optional;
 @Repository
 public interface HireRepository extends CrudRepository<HireEvent, Long> {
     Optional<HireEvent> findByItemHired_Id(Long id);
+
+    Iterable<HireEvent> findAllByUser(User user);
 
 
     //TODO finish test, sql from code below
