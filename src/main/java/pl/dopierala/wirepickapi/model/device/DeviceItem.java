@@ -1,8 +1,6 @@
 package pl.dopierala.wirepickapi.model.device;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
-import pl.dopierala.wirepickapi.model.HireEvent;
+import pl.dopierala.wirepickapi.model.ReservationEvent;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,13 +17,13 @@ public class DeviceItem implements Cloneable {
     private LocalDateTime dateAddedToLibrary;
     private String localization;
     @OneToMany(mappedBy = "itemHired", cascade = {CascadeType.ALL})
-    private List<HireEvent> hires;
+    private List<ReservationEvent> hires;
 
     public DeviceItem() {
         hires = new ArrayList<>();
     }
 
-    public DeviceItem(List<HireEvent> hires) {
+    public DeviceItem(List<ReservationEvent> hires) {
         this();
         this.hires = hires;
     }
@@ -67,11 +65,11 @@ public class DeviceItem implements Cloneable {
         this.localization = localization;
     }
 
-    public void setHires(List<HireEvent> hires) {
+    public void setHires(List<ReservationEvent> hires) {
         this.hires = hires;
     }
 
-    public List<HireEvent> getHires() {
+    public List<ReservationEvent> getHires() {
         return hires;
     }
 

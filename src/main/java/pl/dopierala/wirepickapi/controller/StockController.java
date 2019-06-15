@@ -3,7 +3,7 @@ package pl.dopierala.wirepickapi.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pl.dopierala.wirepickapi.exceptions.definitions.Stock.HireDateParseException;
+import pl.dopierala.wirepickapi.exceptions.definitions.Stock.DateParseException;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.service.StockService;
@@ -42,29 +42,29 @@ public class StockController {
         return stockService.findStockByDeviceDefinition(deviceDefinitionId);
     }
 
-    @GetMapping("/device/{deviceDefinitionId}/free/from/{deviceHireFrom}/to/{deviceHireTo}")
+    @GetMapping("/device/{deviceDefinitionId}/free/from/{deviceReservFrom}/to/{deviceReservTo}")
     public Iterable<DeviceItem> getAllAvailableItems(@PathVariable Long deviceDefinitionId,
-                                                     @PathVariable String deviceHireFrom,
-                                                     @PathVariable String deviceHireTo) throws HireDateParseException {
+                                                     @PathVariable String deviceReservFrom,
+                                                     @PathVariable String deviceReservTo) throws DateParseException {
 
-        LocalDateTime hireDateFrom = parseDate(deviceHireFrom);
-        LocalDateTime hireDateTo = parseDate(deviceHireTo);
+        LocalDateTime reserveDateFrom = parseDate(deviceReservFrom);
+        LocalDateTime reserveDateTo = parseDate(deviceReservTo);
 
-        return stockService.findFreeStockByDeviceDefinition(deviceDefinitionId, hireDateFrom, hireDateTo);
+        return stockService.findFreeStockByDeviceDefinition(deviceDefinitionId, reserveDateFrom, reserveDateTo);
     }
 
-    @PutMapping("/hire/{stockItemId}/user/{userId}/from/{deviceHireFrom}/to/{deviceHireTo}")
+    @PutMapping("/reserv/{stockItemId}/user/{userId}/from/{deviceReservFrom}/to/{deviceReservTo}")
     public ResponseEntity putHireDevice(@PathVariable Long stockItemId,
                                         @PathVariable Long userId,
-                                        @PathVariable String deviceHireFrom,
-                                        @PathVariable String deviceHireTo) throws HireDateParseException {
+                                        @PathVariable String deviceReservFrom,
+                                        @PathVariable String deviceReservTo) throws DateParseException {
 
-        LocalDateTime hireDateFrom = parseDate(deviceHireFrom);
-        LocalDateTime hireDateTo = parseDate(deviceHireTo);
+        LocalDateTime reservationDateFrom = parseDate(deviceReservFrom);
+        LocalDateTime reservationDateTo = parseDate(deviceReservTo);
 
         User userById = userService.findUserById(userId);
 
-        stockService.rentItem(stockItemId, hireDateFrom, hireDateTo, userById);
+        stockService.reserveItem(stockItemId, reservationDateFrom, reservationDateTo, userById);
 
         return ResponseEntity.accepted().body("Device Hired");
     }
@@ -75,7 +75,7 @@ public class StockController {
         try {
             parsedDate = LocalDate.parse(dateToParse, formatter).atStartOfDay();
         } catch (DateTimeParseException e) {
-            throw new HireDateParseException("" + e.getParsedString());
+            throw new DateParseException("" + e.getParsedString());
         }
         return parsedDate;
     }

@@ -4,18 +4,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pl.dopierala.wirepickapi.model.HireEvent;
-import pl.dopierala.wirepickapi.model.device.DeviceItem;
+import pl.dopierala.wirepickapi.model.ReservationEvent;
 import pl.dopierala.wirepickapi.model.user.User;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public interface HireRepository extends CrudRepository<HireEvent, Long> {
-    Optional<HireEvent> findByItemHired_Id(Long id);
+public interface HireRepository extends CrudRepository<ReservationEvent, Long> {
+    Optional<ReservationEvent> findByItemHired_Id(Long id);
 
-    Iterable<HireEvent> findAllByUser(User user);
+    Iterable<ReservationEvent> findAllByUser(User user);
 
 
     //TODO finish test, sql from code below
@@ -31,7 +30,7 @@ public interface HireRepository extends CrudRepository<HireEvent, Long> {
     @Query(value = "SELECT count(1) FROM wirepick.hire_event he " +
             "WHERE (:from <= hire_end AND :to >= hire_start) AND he.item_hired_id=:itemId"
             , nativeQuery = true)
-    Integer numberOfOverlappingHirePeriods(@Param("itemId") Long itemId,
-                                           @Param("from") LocalDateTime from,
-                                           @Param("to") LocalDateTime to);
+    Integer numberOfOverlappingReservPeriods(@Param("itemId") Long itemId,
+                                             @Param("from") LocalDateTime from,
+                                             @Param("to") LocalDateTime to);
 }

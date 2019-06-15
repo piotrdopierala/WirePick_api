@@ -2,11 +2,11 @@ package pl.dopierala.wirepickapi.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyHiredException;
+import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyReservedException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
-import pl.dopierala.wirepickapi.model.HireEvent;
+import pl.dopierala.wirepickapi.model.ReservationEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.repositories.devices.HireRepository;
@@ -21,7 +21,7 @@ import java.util.Optional;
 public class StockService {
 
     private StockRepository stockRepository;
-    private HireRepository hireRepository; //TODO its service, hireRepository should not be here. Change to at least hireService
+    private HireRepository hireRepository;
 
     @Autowired
     public StockService(StockRepository stockRepository, HireRepository hireRepository) {
@@ -59,42 +59,51 @@ public class StockService {
     /**
      * Rents device for given user from supplied date for given Duration
      *
-     * @param itemId   device to rent
-     * @param start    DateTime start of rent period
-     * @param duration Duration of rent period
-     * @param user     User witch rents device
+     * @param itemId   device to reserve for user to rent
+     * @param start    DateTime start of reservation period
+     * @param duration Duration of reservation period
+     * @param user     User witch reserves device
      * @return 0 - rent succeeded
      */
-    public int rentItem(Long itemId, LocalDateTime start, Duration duration, User user) throws StockItemIdNotFoundException, DeviceNotAvailableAlreadyHiredException {
+    public int reserveItem(Long itemId, LocalDateTime start, Duration duration, User user) throws StockItemIdNotFoundException, DeviceNotAvailableAlreadyReservedException {
         DeviceItem itemFoundById = findStockByItemId(itemId);
         if (isAvailable(itemId, start, duration)) {
-            itemFoundById.getHires().add(new HireEvent(itemFoundById, start, duration, user));
+            itemFoundById.getHires().add(new ReservationEvent(itemFoundById, start, duration, user));
             stockRepository.save(itemFoundById);
             return 0;
         } else {
-            throw new DeviceNotAvailableAlreadyHiredException();
+            throw new DeviceNotAvailableAlreadyReservedException();
         }
     }
 
     /**
-     * Rents device for given user between supplied dates
+     * Reserves device for given user between supplied dates
      *
-     * @param itemId device to rent
-     * @param start  DateTime start of rent period
-     * @param end    DateTime end of rent period
-     * @param user   User witch rents device
-     * @return 0 - rent succeeded
+     * @param itemId device to reserve
+     * @param start  DateTime start of reservation period
+     * @param end    DateTime end of reservation period
+     * @param user   User witch reserves device
+     * @return 0 - reservation succeeded
      */
-    public int rentItem(Long itemId, LocalDateTime start, LocalDateTime end, User user) throws StockItemIdNotFoundException, UserNotFoundException, DeviceNotAvailableAlreadyHiredException {
-        return rentItem(itemId, start, Duration.between(start, end), user);
+    public int reserveItem(Long itemId, LocalDateTime start, LocalDateTime end, User user) throws StockItemIdNotFoundException, UserNotFoundException, DeviceNotAvailableAlreadyReservedException {
+        return reserveItem(itemId, start, Duration.between(start, end), user);
     }
 
+    /*
+    Reservation independent from actual rent branch
+    Idea is that user can reserve some device but can return it earlier. When returning can decide whether to end reservation (shorten it) to day of return or not
+    TODO: change ReservationEvent model to persist separate reservation and actual hire period. Maybe a new model ?
+    TODO: Function to actual rent in reservation period. For now it should assume device is rents first day of reservation automatically
+    TODO: Function to actual return, user should decide weather to shorten  the reservation period.
+     */
+
+
     /**
-     * Checks whether device item is available to borrow given start date and period od hire.
+     * Checks whether device item is available to reserve given start date and period it of device.
      *
      * @param itemId  Stock item ID that will be checked if available
-     * @param when    Start date of hire period
-     * @param howLong Period of hire
+     * @param when    Start date of reservation period
+     * @param howLong Period of reservation
      * @return if deviceDefinition is available or not
      */
     public boolean isAvailable(Long itemId, LocalDateTime when, Duration howLong) {
@@ -106,26 +115,27 @@ public class StockService {
     }
 
     /**
-     * Checks whether device item is available to borrow given start date and period od hire.
+     * Checks whether device item is available to reserve given start date and period od hire.
      *
      * @param itemId Stock item ID that will be checked if available
-     * @param from   Start date of hire period
-     * @param end    End date of hire period
+     * @param from   Start date of reservation period
+     * @param end    End date of reservation period
      * @return if deviceDefinition is available or not
      */
     public boolean isAvailable(Long itemId, LocalDateTime from, LocalDateTime end) {
         if (Objects.isNull(itemId) || Objects.isNull(from) || Objects.isNull(end)) {
             return false;
         }
-        return (hireRepository.numberOfOverlappingHirePeriods(itemId, from, end) == 0);
+        return (hireRepository.numberOfOverlappingReservPeriods(itemId, from, end) == 0);
     }
 
     /**
-     * Gets all hires made by given user
-     * @param user User of witch all hires will be found
-     * @return Iterable of HireEvent
+     * Gets all reservations made by given user
+     *
+     * @param user User of witch all reservations will be found
+     * @return Iterable of ReservationEvent
      */
-    public Iterable<HireEvent> findAllUserHires(User user) {
+    public Iterable<ReservationEvent> findAllUserReservations(User user) {
         return hireRepository.findAllByUser(user);
     }
 

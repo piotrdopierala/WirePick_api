@@ -4,7 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import pl.dopierala.wirepickapi.exceptions.definitions.Stock.HireDateParseException;
+import pl.dopierala.wirepickapi.exceptions.definitions.Stock.DateParseException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
 
@@ -16,8 +16,8 @@ import java.util.Map;
 @ControllerAdvice
 public class ExceptionAOPHandler {
 
-    @ExceptionHandler(HireDateParseException.class)
-    public ResponseEntity hireDateParseExceptionHandler( final HireDateParseException e, final HttpServletResponse response){
+    @ExceptionHandler(DateParseException.class)
+    public ResponseEntity hireDateParseExceptionHandler(final DateParseException e, final HttpServletResponse response){
         Map<String,Object> body = new HashMap<>();
         body.put("date:", LocalDateTime.now());
         body.put("exception:",e.getClass().getSimpleName());
@@ -36,8 +36,8 @@ public class ExceptionAOPHandler {
         return prepareResponseEntity(e.getClass().getSimpleName(), e.getMessage(), e);
     }
 
-    @ExceptionHandler(DeviceNotAvailableAlreadyHiredException.class)
-    public ResponseEntity deviceAlreadyHiredExceptionHandler(final DeviceNotAvailableAlreadyHiredException e, final HttpServletResponse response){
+    @ExceptionHandler(DeviceNotAvailableAlreadyReservedException.class)
+    public ResponseEntity deviceAlreadyHiredExceptionHandler(final DeviceNotAvailableAlreadyReservedException e, final HttpServletResponse response){
         return prepareResponseEntity(e.getClass().getSimpleName(),e.getMessage(),e);
     }
 
