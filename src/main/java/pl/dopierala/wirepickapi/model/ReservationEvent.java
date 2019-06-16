@@ -6,6 +6,7 @@ import pl.dopierala.wirepickapi.model.user.User;
 import javax.persistence.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -21,6 +22,8 @@ public class ReservationEvent implements Comparable<ReservationEvent> {
     private DeviceItem itemReserved;
     @ManyToOne
     private User user;
+    @OneToMany(mappedBy = "reservation", fetch = FetchType.EAGER)
+    private List<BorrowEvent> borrows;
 
     public ReservationEvent() {
     }
