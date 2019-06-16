@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public interface HireRepository extends CrudRepository<ReservationEvent, Long> {
-    Optional<ReservationEvent> findByItemHired_Id(Long id);
+public interface ReservationRepository extends CrudRepository<ReservationEvent, Long> {
+    Optional<ReservationEvent> findByItemReserved_Id(Long id);
 
     Iterable<ReservationEvent> findAllByUser(User user);
 
@@ -27,7 +27,7 @@ public interface HireRepository extends CrudRepository<ReservationEvent, Long> {
      * @param to     end period to check
      * @return 0 if is available, otherwise number of overlapping periods.
      */
-    @Query(value = "SELECT count(1) FROM wirepick.hire_event he " +
+    @Query(value = "SELECT count(1) FROM wirepick.reservation_event he " +
             "WHERE (:from <= hire_end AND :to >= hire_start) AND he.item_hired_id=:itemId"
             , nativeQuery = true)
     Integer numberOfOverlappingReservPeriods(@Param("itemId") Long itemId,

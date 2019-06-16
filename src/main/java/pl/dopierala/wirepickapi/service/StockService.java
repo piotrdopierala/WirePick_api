@@ -9,7 +9,7 @@ import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
 import pl.dopierala.wirepickapi.model.ReservationEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
-import pl.dopierala.wirepickapi.repositories.devices.HireRepository;
+import pl.dopierala.wirepickapi.repositories.devices.ReservationRepository;
 import pl.dopierala.wirepickapi.repositories.devices.StockRepository;
 
 import java.time.Duration;
@@ -21,13 +21,13 @@ import java.util.Optional;
 public class StockService {
 
     private StockRepository stockRepository;
-    private HireRepository hireRepository;
+    private ReservationRepository reservationRepository;
 
     @Autowired
-    public StockService(StockRepository stockRepository, HireRepository hireRepository) {
+    public StockService(StockRepository stockRepository, ReservationRepository reservationRepository) {
 
         this.stockRepository = stockRepository;
-        this.hireRepository = hireRepository;
+        this.reservationRepository = reservationRepository;
     }
 
     public Iterable<DeviceItem> findAllStock() {
@@ -68,7 +68,7 @@ public class StockService {
     public int reserveItem(Long itemId, LocalDateTime start, Duration duration, User user) throws StockItemIdNotFoundException, DeviceNotAvailableAlreadyReservedException {
         DeviceItem itemFoundById = findStockByItemId(itemId);
         if (isAvailable(itemId, start, duration)) {
-            itemFoundById.getHires().add(new ReservationEvent(itemFoundById, start, duration, user));
+            itemFoundById.getReservations().add(new ReservationEvent(itemFoundById, start, duration, user));
             stockRepository.save(itemFoundById);
             return 0;
         } else {
@@ -126,7 +126,7 @@ public class StockService {
         if (Objects.isNull(itemId) || Objects.isNull(from) || Objects.isNull(end)) {
             return false;
         }
-        return (hireRepository.numberOfOverlappingReservPeriods(itemId, from, end) == 0);
+        return (reservationRepository.numberOfOverlappingReservPeriods(itemId, from, end) == 0);
     }
 
     /**
@@ -136,7 +136,7 @@ public class StockService {
      * @return Iterable of ReservationEvent
      */
     public Iterable<ReservationEvent> findAllUserReservations(User user) {
-        return hireRepository.findAllByUser(user);
+        return reservationRepository.findAllByUser(user);
     }
 
 

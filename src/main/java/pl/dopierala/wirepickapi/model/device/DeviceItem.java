@@ -16,16 +16,16 @@ public class DeviceItem implements Cloneable {
     private DeviceDefinition deviceDefinition;
     private LocalDateTime dateAddedToLibrary;
     private String localization;
-    @OneToMany(mappedBy = "itemHired", cascade = {CascadeType.ALL})
-    private List<ReservationEvent> hires;
+    @OneToMany(mappedBy = "itemReserved", cascade = {CascadeType.ALL})
+    private List<ReservationEvent> reservations;
 
     public DeviceItem() {
-        hires = new ArrayList<>();
+        reservations = new ArrayList<>();
     }
 
-    public DeviceItem(List<ReservationEvent> hires) {
+    public DeviceItem(List<ReservationEvent> reservations) {
         this();
-        this.hires = hires;
+        this.reservations = reservations;
     }
 
     public DeviceItem(DeviceDefinition deviceDefinition) {
@@ -65,18 +65,18 @@ public class DeviceItem implements Cloneable {
         this.localization = localization;
     }
 
-    public void setHires(List<ReservationEvent> hires) {
-        this.hires = hires;
+    public void setReservations(List<ReservationEvent> reservations) {
+        this.reservations = reservations;
     }
 
-    public List<ReservationEvent> getHires() {
-        return hires;
+    public List<ReservationEvent> getReservations() {
+        return reservations;
     }
 
     @Override
     public DeviceItem clone(){
         DeviceItem clonedObject = new DeviceItem();
-        clonedObject.setHires(this.getHires());
+        clonedObject.setReservations(this.getReservations());
         clonedObject.setId(this.getId());
         clonedObject.setDateAddedToLibrary(this.getDateAddedToLibrary());
         clonedObject.setDeviceDefinition(this.getDeviceDefinition());

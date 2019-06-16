@@ -59,13 +59,13 @@ public class StockControllerTest {
 
 
     @Test
-    public void Should_putHireDevice_ReturnBadRequestCode400_when_DateParseError() throws Exception {
+    public void Should_putReserveDevice_ReturnBadRequestCode400_when_DateParseError() throws Exception {
         final long stockItemId = 1L;
         final String hireStartDate = "2017-05-19";
         final String hireEndDate = "2017a-05-21";
         final long userId = 1L;
 
-        String urlFormat = "/api/stock/hire/%s/user/%s/from/%s/to/%s";
+        String urlFormat = "/api/stock/reserv/%s/user/%s/from/%s/to/%s";
         String url = String.format(urlFormat,stockItemId,userId,hireStartDate,hireEndDate);
 
         mockMvc.perform(put(url))
@@ -74,13 +74,13 @@ public class StockControllerTest {
     }
 
     @Test
-    public void Should_putHireDevice_Hire_Successfully() throws Exception {
+    public void Should_putReserveDevice_Reserve_Successfully() throws Exception {
         final long stockItemId = 1L;
         final String hireStartDate = "2017-05-19";
         final String hireEndDate = "2017-05-21";
         final long userId = 1L;
 
-        String urlFormat = "/api/stock/hire/%s/user/%s/from/%s/to/%s";
+        String urlFormat = "/api/stock/reserv/%s/user/%s/from/%s/to/%s";
         String url = String.format(urlFormat,stockItemId,userId,hireStartDate,hireEndDate);
 
         when(userService.findUserById(userId)).thenReturn(SampleUsers.u1);
