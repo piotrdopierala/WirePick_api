@@ -20,7 +20,7 @@ public interface StockRepository extends CrudRepository<DeviceItem, Long> {
      * @param to end period to check for availability
      * @return Collection of DeviceItems available to rent
      */
-    @Query(value = "SELECT * FROM device_item di WHERE di.device_definition_id=:deviceId AND NOT EXISTS (SELECT * FROM hire_event he WHERE di.id=he.item_hired_id AND (:from <= hire_end AND :to >= hire_start))",nativeQuery = true)
+    @Query(value = "SELECT * FROM device_item di WHERE di.device_definition_id=:deviceId AND NOT EXISTS (SELECT * FROM book_event be WHERE di.id=be.item_booked_id AND (:from <= book_end AND :to >= book_start))",nativeQuery = true)
     Iterable<DeviceItem> findFreeItemsByDeviceIdAndHirePeriod(@Param("deviceId") Long deviceId,
                                                               @Param("from") LocalDateTime from,
                                                               @Param("to") LocalDateTime to);

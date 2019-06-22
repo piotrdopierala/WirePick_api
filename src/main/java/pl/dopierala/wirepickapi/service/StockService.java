@@ -6,10 +6,10 @@ import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlready
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
-import pl.dopierala.wirepickapi.model.ReservationEvent;
+import pl.dopierala.wirepickapi.model.BookEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
-import pl.dopierala.wirepickapi.repositories.devices.ReservationRepository;
+import pl.dopierala.wirepickapi.repositories.devices.BookingsRepository;
 import pl.dopierala.wirepickapi.repositories.devices.StockRepository;
 
 import java.time.Duration;
@@ -21,13 +21,13 @@ import java.util.Optional;
 public class StockService {
 
     private StockRepository stockRepository;
-    private ReservationRepository reservationRepository;
+    private BookingsRepository bookingsRepository;
 
     @Autowired
-    public StockService(StockRepository stockRepository, ReservationRepository reservationRepository) {
+    public StockService(StockRepository stockRepository, BookingsRepository bookingsRepository) {
 
         this.stockRepository = stockRepository;
-        this.reservationRepository = reservationRepository;
+        this.bookingsRepository = bookingsRepository;
     }
 
     public Iterable<DeviceItem> findAllStock() {
@@ -68,7 +68,7 @@ public class StockService {
     public int reserveItem(Long itemId, LocalDateTime start, Duration duration, User user) throws StockItemIdNotFoundException, DeviceNotAvailableAlreadyReservedException {
         DeviceItem itemFoundById = findStockByItemId(itemId);
         if (isAvailable(itemId, start, duration)) {
-            itemFoundById.getReservations().add(new ReservationEvent(itemFoundById, start, duration, user));
+            itemFoundById.getBookings().add(new BookEvent(itemFoundById, start, duration, user));
             stockRepository.save(itemFoundById);
             return 0;
         } else {
@@ -92,7 +92,7 @@ public class StockService {
     /*
     Reservation independent from actual rent branch
     Idea is that user can reserve some device but can return it earlier. When returning can decide whether to end reservation (shorten it) to day of return or not
-    TODO: change ReservationEvent model to persist separate reservation and actual hire period. Maybe a new model ?
+    TODO: change BookEvent model to persist separate reservation and actual hire period. Maybe a new model ?
     TODO: Function to actual rent in reservation period. For now it should assume device is rents first day of reservation automatically
     TODO: Function to actual return, user should decide weather to shorten  the reservation period.
      */
@@ -126,17 +126,17 @@ public class StockService {
         if (Objects.isNull(itemId) || Objects.isNull(from) || Objects.isNull(end)) {
             return false;
         }
-        return (reservationRepository.numberOfOverlappingReservPeriods(itemId, from, end) == 0);
+        return (bookingsRepository.numberOfOverlappingReservPeriods(itemId, from, end) == 0);
     }
 
     /**
      * Gets all reservations made by given user
      *
      * @param user User of witch all reservations will be found
-     * @return Iterable of ReservationEvent
+     * @return Iterable of BookEvent
      */
-    public Iterable<ReservationEvent> findAllUserReservations(User user) {
-        return reservationRepository.findAllByUser(user);
+    public Iterable<BookEvent> findAllUserReservations(User user) {
+        return bookingsRepository.findAllByUser(user);
     }
 
 

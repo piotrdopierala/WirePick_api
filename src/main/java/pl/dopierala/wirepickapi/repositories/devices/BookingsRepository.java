@@ -4,17 +4,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pl.dopierala.wirepickapi.model.ReservationEvent;
+import pl.dopierala.wirepickapi.model.BookEvent;
 import pl.dopierala.wirepickapi.model.user.User;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
-public interface ReservationRepository extends CrudRepository<ReservationEvent, Long> {
-    Optional<ReservationEvent> findByItemReserved_Id(Long id);
+public interface BookingsRepository extends CrudRepository<BookEvent, Long> {
+    Optional<BookEvent> findByItemBooked_Id(Long id);
 
-    Iterable<ReservationEvent> findAllByUser(User user);
+    Iterable<BookEvent> findAllByUser(User user);
 
 
     //TODO finish test, sql from code below

@@ -13,7 +13,7 @@ public class BorrowEvent {
     private String notes;
     @ManyToOne
     @JoinColumn
-    private ReservationEvent reservation;
+    private BookEvent bookEvent;
 
     public BorrowEvent() {
     }
@@ -50,11 +50,11 @@ public class BorrowEvent {
         this.notes = notes;
     }
 
-    public ReservationEvent getReservation() {
-        return reservation;
+    public BookEvent getReservation() {
+        return bookEvent;
     }
 
-    public void setReservation(ReservationEvent reservation) {
-        this.reservation = reservation;
+    public void setReservation(BookEvent bookEvent) {
+        this.bookEvent = bookEvent;
     }
 }

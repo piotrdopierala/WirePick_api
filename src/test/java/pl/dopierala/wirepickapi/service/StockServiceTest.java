@@ -16,9 +16,9 @@ import pl.dopierala.wirepickapi.Utils;
 import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyReservedException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
-import pl.dopierala.wirepickapi.model.ReservationEvent;
+import pl.dopierala.wirepickapi.model.BookEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
-import pl.dopierala.wirepickapi.repositories.devices.ReservationRepository;
+import pl.dopierala.wirepickapi.repositories.devices.BookingsRepository;
 import pl.dopierala.wirepickapi.repositories.devices.StockRepository;
 
 import java.time.LocalDateTime;
@@ -41,7 +41,7 @@ public class StockServiceTest {
     @Mock
     private StockRepository stockRepositoryMock;
     @Mock
-    private ReservationRepository reservationRepositoryMock;
+    private BookingsRepository bookingsRepositoryMock;
 
     @InjectMocks
     private StockService stockService;
@@ -113,13 +113,13 @@ public class StockServiceTest {
         final LocalDateTime hireEndDate = LocalDateTime.of(2017, 05, 21, 0, 0);
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
-        List<ReservationEvent> hires = s1_d1_clone.getReservations();
-        hires.add(new ReservationEvent(s1_d1_clone,LocalDateTime.of(2017, 05, 20, 0, 0),
+        List<BookEvent> hires = s1_d1_clone.getBookings();
+        hires.add(new BookEvent(s1_d1_clone,LocalDateTime.of(2017, 05, 20, 0, 0),
                 LocalDateTime.of(2017, 05, 22, 0, 0),
                 SampleUsers.u1));
 
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(reservationRepositoryMock.numberOfOverlappingReservPeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(1);
+        when(bookingsRepositoryMock.numberOfOverlappingReservPeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(1);
 
         stockService.reserveItem(testDeviceId,
                 hireStartDate,
@@ -135,16 +135,16 @@ public class StockServiceTest {
         final LocalDateTime hireEndDate = LocalDateTime.of(2017, 05, 21, 0, 0);
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
-        int beginHiresSize = s1_d1_clone.getReservations().size();
+        int beginHiresSize = s1_d1_clone.getBookings().size();
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(reservationRepositoryMock.numberOfOverlappingReservPeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(0);
+        when(bookingsRepositoryMock.numberOfOverlappingReservPeriods(testDeviceId,hireStartDate,hireEndDate)).thenReturn(0);
 
         stockService.reserveItem(testDeviceId,
                 hireStartDate,
                 hireEndDate,
                 SampleUsers.u1);
 
-        int endHiresSize = s1_d1_clone.getReservations().size();
+        int endHiresSize = s1_d1_clone.getBookings().size();
 
         Assert.assertEquals(beginHiresSize + 1, endHiresSize);
     }
@@ -158,13 +158,13 @@ public class StockServiceTest {
         final LocalDateTime freeEnd = LocalDateTime.of(2017, 06, 22, 0, 0);
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
-        List<ReservationEvent> hires = s1_d1_clone.getReservations();
-        hires.add(new ReservationEvent(s1_d1_clone,hireStart,
+        List<BookEvent> hires = s1_d1_clone.getBookings();
+        hires.add(new BookEvent(s1_d1_clone,hireStart,
                 hireEnd,
                 SampleUsers.u1));
 
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(reservationRepositoryMock.numberOfOverlappingReservPeriods(testDeviceId,freeStart,freeEnd)).thenReturn(0);
+        when(bookingsRepositoryMock.numberOfOverlappingReservPeriods(testDeviceId,freeStart,freeEnd)).thenReturn(0);
 
         Assert.assertTrue(stockService.isAvailable(testDeviceId, freeStart, freeEnd));
     }
@@ -183,13 +183,13 @@ public class StockServiceTest {
         final LocalDateTime hireEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
-        List<ReservationEvent> hires = s1_d1_clone.getReservations();
-        hires.add(new ReservationEvent(s1_d1_clone,hireStart,
+        List<BookEvent> hires = s1_d1_clone.getBookings();
+        hires.add(new BookEvent(s1_d1_clone,hireStart,
                 hireEnd,
                 SampleUsers.u2));
 
-        when(reservationRepositoryMock.findAllByUser(SampleUsers.u1)).thenReturn(Lists.emptyList());
-        when(reservationRepositoryMock.findAllByUser(SampleUsers.u2)).thenReturn(hires);
+        when(bookingsRepositoryMock.findAllByUser(SampleUsers.u1)).thenReturn(Lists.emptyList());
+        when(bookingsRepositoryMock.findAllByUser(SampleUsers.u2)).thenReturn(hires);
 
         Assert.assertEquals(Lists.emptyList(),stockService.findAllUserReservations(SampleUsers.u1));
         Assert.assertEquals(hires,stockService.findAllUserReservations(SampleUsers.u2));

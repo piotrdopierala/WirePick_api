@@ -1,6 +1,6 @@
 package pl.dopierala.wirepickapi.model.device;
 
-import pl.dopierala.wirepickapi.model.ReservationEvent;
+import pl.dopierala.wirepickapi.model.BookEvent;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -16,16 +16,16 @@ public class DeviceItem implements Cloneable {
     private DeviceDefinition deviceDefinition;
     private LocalDateTime dateAddedToLibrary;
     private String localization;
-    @OneToMany(mappedBy = "itemReserved", cascade = {CascadeType.ALL})
-    private List<ReservationEvent> reservations;
+    @OneToMany(mappedBy = "itemBooked", cascade = {CascadeType.ALL})
+    private List<BookEvent> bookings;
 
     public DeviceItem() {
-        reservations = new ArrayList<>();
+        bookings = new ArrayList<>();
     }
 
-    public DeviceItem(List<ReservationEvent> reservations) {
+    public DeviceItem(List<BookEvent> bookings) {
         this();
-        this.reservations = reservations;
+        this.bookings = bookings;
     }
 
     public DeviceItem(DeviceDefinition deviceDefinition) {
@@ -65,18 +65,18 @@ public class DeviceItem implements Cloneable {
         this.localization = localization;
     }
 
-    public void setReservations(List<ReservationEvent> reservations) {
-        this.reservations = reservations;
+    public void setBookings(List<BookEvent> bookings) {
+        this.bookings = bookings;
     }
 
-    public List<ReservationEvent> getReservations() {
-        return reservations;
+    public List<BookEvent> getBookings() {
+        return bookings;
     }
 
     @Override
     public DeviceItem clone(){
         DeviceItem clonedObject = new DeviceItem();
-        clonedObject.setReservations(this.getReservations());
+        clonedObject.setBookings(this.getBookings());
         clonedObject.setId(this.getId());
         clonedObject.setDateAddedToLibrary(this.getDateAddedToLibrary());
         clonedObject.setDeviceDefinition(this.getDeviceDefinition());
