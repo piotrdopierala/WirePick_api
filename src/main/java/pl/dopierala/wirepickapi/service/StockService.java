@@ -57,7 +57,7 @@ public class StockService {
     }
 
     /**
-     * Rents device for given user from supplied date for given Duration
+     * Books device for given user from supplied date for given Duration
      *
      * @param itemId   device to reserve for user to rent
      * @param start    DateTime start of reservation period
@@ -92,7 +92,6 @@ public class StockService {
     /*
     Reservation independent from actual rent branch
     Idea is that user can reserve some device but can return it earlier. When returning can decide whether to end reservation (shorten it) to day of return or not
-    TODO: change BookEvent model to persist separate reservation and actual hire period. Maybe a new model ?
     TODO: Function to actual rent in reservation period. For now it should assume device is rents first day of reservation automatically
     TODO: Function to actual return, user should decide weather to shorten the reservation period.
      */
@@ -144,5 +143,17 @@ public class StockService {
     public DeviceItem saveNewItem(DeviceItem newItem) {
         newItem.setId(0);
         return stockRepository.save(newItem);
+    }
+
+
+    /**
+     * Gets all bookings of given item by given User
+     *
+     * @param user user who's bookings to find
+     * @param itemId item witch bookings to find
+     * @return iterable of BookEvent (all bookings)
+     */
+    public Iterable<BookEvent> findAllUserItemBookings(User user, Long itemId){
+        return bookingsRepository.findAllByUserAndItemBooked_Id(user, itemId);
     }
 }

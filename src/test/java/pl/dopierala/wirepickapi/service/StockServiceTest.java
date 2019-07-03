@@ -199,12 +199,31 @@ public class StockServiceTest {
     @Test
     public void Should_findFreeStockByDeviceDefinition_ReturnAvailableItems(){
         final long testDeviceId = 1L;
-        final LocalDateTime hireStart = LocalDateTime.of(2017, 05, 20, 0, 0);
-        final LocalDateTime hireEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+        final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
 
-        when(stockRepositoryMock.findFreeItemsByDeviceIdAndHirePeriod(testDeviceId,hireStart,hireEnd)).thenReturn(Arrays.asList(s1_d1, s2_d1));
+        when(stockRepositoryMock.findFreeItemsByDeviceIdAndHirePeriod(testDeviceId,bookStart,bookEnd)).thenReturn(Arrays.asList(s1_d1, s2_d1));
 
-        Assert.assertEquals(Utils.getIterableSize(stockService.findFreeStockByDeviceDefinition(testDeviceId,hireStart,hireEnd)),2);
+        Assert.assertEquals(Utils.getIterableSize(stockService.findFreeStockByDeviceDefinition(testDeviceId,bookStart,bookEnd)),2);
+    }
+
+    @Test
+    public void Should_findAllUserItemBookings_returnBookings(){
+        final long testDeviceId = 1L;
+        final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+
+        DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
+        List<BookEvent> bookings = s1_d1_clone.getBookings();
+        bookings.add(new BookEvent(s1_d1_clone,bookStart,
+                bookEnd,
+                SampleUsers.u2));
+
+        when(bookingsRepositoryMock.findAllByUserAndItemBooked_Id(SampleUsers.u1,testDeviceId)).thenReturn(Lists.emptyList());
+        when(bookingsRepositoryMock.findAllByUserAndItemBooked_Id(SampleUsers.u2,testDeviceId)).thenReturn(bookings);
+
+        Assert.assertEquals(Lists.emptyList(),stockService.findAllUserItemBookings(SampleUsers.u1,testDeviceId));
+        Assert.assertEquals(bookings,stockService.findAllUserItemBookings(SampleUsers.u2,testDeviceId));
     }
 
 }

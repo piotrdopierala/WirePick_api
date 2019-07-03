@@ -16,6 +16,7 @@ public interface BookingsRepository extends CrudRepository<BookEvent, Long> {
 
     Iterable<BookEvent> findAllByUser(User user);
 
+    Iterable<BookEvent> findAllByUserAndItemBooked_Id(User user, Long ItemId);
 
     //TODO finish test, sql from code below
     /**
