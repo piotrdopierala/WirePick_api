@@ -2,7 +2,7 @@ package pl.dopierala.wirepickapi.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyReservedException;
+import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyBookedException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
@@ -65,28 +65,28 @@ public class StockService {
      * @param user     User witch reserves device
      * @return 0 - rent succeeded
      */
-    public int reserveItem(Long itemId, LocalDateTime start, Duration duration, User user) throws StockItemIdNotFoundException, DeviceNotAvailableAlreadyReservedException {
+    public int bookItem(Long itemId, LocalDateTime start, Duration duration, User user) throws StockItemIdNotFoundException, DeviceNotAvailableAlreadyBookedException {
         DeviceItem itemFoundById = findStockByItemId(itemId);
         if (isAvailable(itemId, start, duration)) {
             itemFoundById.getBookings().add(new BookEvent(itemFoundById, start, duration, user));
             stockRepository.save(itemFoundById);
             return 0;
         } else {
-            throw new DeviceNotAvailableAlreadyReservedException();
+            throw new DeviceNotAvailableAlreadyBookedException();
         }
     }
 
     /**
-     * Reserves device for given user between supplied dates
+     * Books device for given user between supplied dates
      *
-     * @param itemId device to reserve
-     * @param start  DateTime start of reservation period
-     * @param end    DateTime end of reservation period
-     * @param user   User witch reserves device
-     * @return 0 - reservation succeeded
+     * @param itemId device to book
+     * @param start  DateTime start of book period
+     * @param end    DateTime end of book period
+     * @param user   User witch books device
+     * @return 0 - book succeeded, device booked
      */
-    public int reserveItem(Long itemId, LocalDateTime start, LocalDateTime end, User user) throws StockItemIdNotFoundException, UserNotFoundException, DeviceNotAvailableAlreadyReservedException {
-        return reserveItem(itemId, start, Duration.between(start, end), user);
+    public int bookItem(Long itemId, LocalDateTime start, LocalDateTime end, User user) throws StockItemIdNotFoundException, UserNotFoundException, DeviceNotAvailableAlreadyBookedException {
+        return bookItem(itemId, start, Duration.between(start, end), user);
     }
 
     /*
@@ -94,7 +94,7 @@ public class StockService {
     Idea is that user can reserve some device but can return it earlier. When returning can decide whether to end reservation (shorten it) to day of return or not
     TODO: change BookEvent model to persist separate reservation and actual hire period. Maybe a new model ?
     TODO: Function to actual rent in reservation period. For now it should assume device is rents first day of reservation automatically
-    TODO: Function to actual return, user should decide weather to shorten  the reservation period.
+    TODO: Function to actual return, user should decide weather to shorten the reservation period.
      */
 
 
@@ -126,16 +126,16 @@ public class StockService {
         if (Objects.isNull(itemId) || Objects.isNull(from) || Objects.isNull(end)) {
             return false;
         }
-        return (bookingsRepository.numberOfOverlappingReservPeriods(itemId, from, end) == 0);
+        return (bookingsRepository.numberOfOverlappingBookPeriods(itemId, from, end) == 0);
     }
 
     /**
-     * Gets all reservations made by given user
+     * Gets all books (reservations) made by given user
      *
-     * @param user User of witch all reservations will be found
+     * @param user User of witch all books will be found
      * @return Iterable of BookEvent
      */
-    public Iterable<BookEvent> findAllUserReservations(User user) {
+    public Iterable<BookEvent> findAllUserBookings(User user) {
         return bookingsRepository.findAllByUser(user);
     }
 

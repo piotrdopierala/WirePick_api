@@ -36,8 +36,8 @@ public class ExceptionAOPHandler {
         return prepareResponseEntity(e.getClass().getSimpleName(), e.getMessage(), e);
     }
 
-    @ExceptionHandler(DeviceNotAvailableAlreadyReservedException.class)
-    public ResponseEntity deviceAlreadyHiredExceptionHandler(final DeviceNotAvailableAlreadyReservedException e, final HttpServletResponse response){
+    @ExceptionHandler(DeviceNotAvailableAlreadyBookedException.class)
+    public ResponseEntity deviceAlreadyHiredExceptionHandler(final DeviceNotAvailableAlreadyBookedException e, final HttpServletResponse response){
         return prepareResponseEntity(e.getClass().getSimpleName(),e.getMessage(),e);
     }
 

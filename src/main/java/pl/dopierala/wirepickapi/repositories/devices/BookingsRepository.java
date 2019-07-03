@@ -30,7 +30,7 @@ public interface BookingsRepository extends CrudRepository<BookEvent, Long> {
     @Query(value = "SELECT count(1) FROM wirepick.reservation_event he " +
             "WHERE (:from <= hire_end AND :to >= hire_start) AND he.item_hired_id=:itemId"
             , nativeQuery = true)
-    Integer numberOfOverlappingReservPeriods(@Param("itemId") Long itemId,
-                                             @Param("from") LocalDateTime from,
-                                             @Param("to") LocalDateTime to);
+    Integer numberOfOverlappingBookPeriods(@Param("itemId") Long itemId,
+                                           @Param("from") LocalDateTime from,
+                                           @Param("to") LocalDateTime to);
 }

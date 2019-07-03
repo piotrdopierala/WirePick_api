@@ -64,7 +64,7 @@ public class StockController {
 
         User userById = userService.findUserById(userId);
 
-        stockService.reserveItem(stockItemId, reservationDateFrom, reservationDateTo, userById);
+        stockService.bookItem(stockItemId, reservationDateFrom, reservationDateTo, userById);
 
         return ResponseEntity.accepted().body("Device Hired");
     }
