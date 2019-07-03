@@ -28,8 +28,8 @@ public interface BookingsRepository extends CrudRepository<BookEvent, Long> {
      * @param to     end period to check
      * @return 0 if is available, otherwise number of overlapping periods.
      */
-    @Query(value = "SELECT count(1) FROM wirepick.reservation_event he " +
-            "WHERE (:from <= hire_end AND :to >= hire_start) AND he.item_hired_id=:itemId"
+    @Query(value = "SELECT count(1) FROM wirepick.book_event be " +
+            "WHERE (:from <= book_end AND :to >= book_start) AND be.item_hired_id=:itemId"
             , nativeQuery = true)
     Integer numberOfOverlappingBookPeriods(@Param("itemId") Long itemId,
                                            @Param("from") LocalDateTime from,
