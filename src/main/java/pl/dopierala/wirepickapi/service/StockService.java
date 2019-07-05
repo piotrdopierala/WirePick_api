@@ -156,4 +156,17 @@ public class StockService {
     public Iterable<BookEvent> findAllUserItemBookings(User user, Long itemId){
         return bookingsRepository.findAllByUserAndItemBooked_Id(user, itemId);
     }
+
+    /**
+     * Gets book event of given item by given User that covesr giver period
+     *
+     * @param user iser who's booking to find
+     * @param itemId item witch booking to find
+     * @param start start date of period that book event should include
+     * @param end end date of period that book event should include
+     * @return
+     */
+    public Optional<BookEvent> findUserItemBookingsInPeriod(User user, Long itemId, LocalDateTime start, LocalDateTime end){
+        return Optional.of(bookingsRepository.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(user,itemId,start,end));
+    }
 }

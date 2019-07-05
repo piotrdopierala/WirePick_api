@@ -226,4 +226,21 @@ public class StockServiceTest {
         Assert.assertEquals(bookings,stockService.findAllUserItemBookings(SampleUsers.u2,testDeviceId));
     }
 
+    @Test
+    public void Should_findUserItemBookingsInPeriod_returnBooking(){
+        final long testDeviceId = 1L;
+        final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+
+        DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
+        List<BookEvent> bookings = s1_d1_clone.getBookings();
+        bookings.add(new BookEvent(s1_d1_clone,bookStart,
+                bookEnd,
+                SampleUsers.u2));
+
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(SampleUsers.u2,testDeviceId,bookStart,bookEnd)).thenReturn(bookings.get(0));
+
+        Assert.assertEquals(Optional.of(bookings.get(0)),stockService.findUserItemBookingsInPeriod(SampleUsers.u2,testDeviceId,bookStart,bookEnd));
+    }
+
 }
