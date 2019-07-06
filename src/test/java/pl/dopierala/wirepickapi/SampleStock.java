@@ -20,6 +20,8 @@ public class SampleStock {
     public static Iterable<DeviceItem> sampleStock;
     public static Iterable<DeviceItem> sampleStockOfDeviceDef2;
 
+
+
     private SampleStock() {
     }
 
@@ -50,6 +52,7 @@ public class SampleStock {
 
         sampleStock = new ArrayList<>(Arrays.asList(s1_d1, s2_d1, s3_d1, s4_d2, s5_d2));
         sampleStockOfDeviceDef2 = new ArrayList<>(Arrays.asList(s4_d2, s5_d2));
+
     }
 
     public static int getIterableSize(Iterable<DeviceItem> allItemsStock) {

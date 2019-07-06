@@ -41,7 +41,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().permitAll()
                 .and()
                 .logout()
-                .permitAll();
+                .permitAll()
+                .and().headers().frameOptions().disable();
+
     }
 
     @EventListener(ApplicationReadyEvent.class)
