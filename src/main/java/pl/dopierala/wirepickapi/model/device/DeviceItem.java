@@ -12,7 +12,7 @@ public class DeviceItem implements Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private DeviceDefinition deviceDefinition;
     private LocalDateTime dateAddedToLibrary;
     private String localization;

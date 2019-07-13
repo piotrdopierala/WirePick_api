@@ -18,6 +18,12 @@ public class BorrowEvent {
     public BorrowEvent() {
     }
 
+    public BorrowEvent(BookEvent bookEvent, LocalDateTime borrowStart, LocalDateTime borrowEnd) {
+        this.bookEvent=bookEvent;
+        this.borrowStart=borrowStart;
+        this.borrowEnd=borrowEnd;
+    }
+
     public long getId() {
         return id;
     }

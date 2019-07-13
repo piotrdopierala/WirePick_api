@@ -121,6 +121,22 @@ public class BookEvent implements Comparable<BookEvent> {
         this.user = user;
     }
 
+    public DeviceItem getItemBooked() {
+        return itemBooked;
+    }
+
+    public void setItemBooked(DeviceItem itemBooked) {
+        this.itemBooked = itemBooked;
+    }
+
+    public List<BorrowEvent> getBorrows() {
+        return borrows;
+    }
+
+    public void setBorrows(List<BorrowEvent> borrows) {
+        this.borrows = borrows;
+    }
+
     /**
      * Compare two book events by dates.
      *
