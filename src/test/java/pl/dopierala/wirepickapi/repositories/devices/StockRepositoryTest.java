@@ -32,16 +32,16 @@ public class StockRepositoryTest {
         userRepository.save(SampleStock.u1);
         userRepository.save(SampleStock.u2);
 
-        //prepare device definintions
+        //prepare device definitions
         devicesDefinitionRepository.save(SampleStock.d1);
         devicesDefinitionRepository.save(SampleStock.d2);
 
         //prepare stock items
-        stockRepository.save(SampleStock.s1_d1);
-        stockRepository.save(SampleStock.s2_d1);
-        stockRepository.save(SampleStock.s3_d1);
-        stockRepository.save(SampleStock.s4_d2);
-        stockRepository.save(SampleStock.s5_d2);
+        SampleStock.s1_d1 = stockRepository.save(SampleStock.s1_d1);
+        SampleStock.s2_d1 = stockRepository.save(SampleStock.s2_d1);
+        SampleStock.s3_d1 = stockRepository.save(SampleStock.s3_d1);
+        SampleStock.s4_d2 = stockRepository.save(SampleStock.s4_d2);
+        SampleStock.s5_d2 = stockRepository.save(SampleStock.s5_d2);
     }
 
     @Test
@@ -55,63 +55,63 @@ public class StockRepositoryTest {
     }
 
     @Test
-    public void Should_findFreeItems_find_three_devices(){
+    public void Should_findFreeItems_find_three_devices() {
         Iterable<DeviceItem> freeItemsFound = stockRepository.findFreeItemsByDeviceIdAndHirePeriod(
                 SampleStock.s1_d1.getId(),
                 LocalDateTime.of(2019, 07, 10, 0, 0),
                 LocalDateTime.of(2019, 07, 11, 0, 0)
         );
-        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound),3);
+        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound), 3);
     }
 
     @Test
-    public void Should_findFreeItems_find_two_devices(){
+    public void Should_findFreeItems_find_two_devices() {
         Iterable<DeviceItem> freeItemsFound = stockRepository.findFreeItemsByDeviceIdAndHirePeriod(
                 SampleStock.s1_d1.getId(),
                 LocalDateTime.of(2010, 07, 10, 0, 0),
                 LocalDateTime.of(2019, 07, 11, 0, 0)
         );
-        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound),2);
+        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound), 2);
     }
 
     @Test
-    public void Should_findFreeItems_find_two_devices_third_beginning_overlap(){
+    public void Should_findFreeItems_find_two_devices_third_beginning_overlap() {
         Iterable<DeviceItem> freeItemsFound = stockRepository.findFreeItemsByDeviceIdAndHirePeriod(
                 SampleStock.s1_d1.getId(),
                 LocalDateTime.of(2017, 04, 20, 0, 0),
                 LocalDateTime.of(2017, 05, 2, 0, 0)
         );
-        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound),2);
+        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound), 2);
     }
 
     @Test
-    public void Should_findFreeItems_find_two_devices_third_ending_overlap(){
+    public void Should_findFreeItems_find_two_devices_third_ending_overlap() {
         Iterable<DeviceItem> freeItemsFound = stockRepository.findFreeItemsByDeviceIdAndHirePeriod(
                 SampleStock.s1_d1.getId(),
                 LocalDateTime.of(2017, 05, 9, 0, 0),
                 LocalDateTime.of(2017, 05, 11, 0, 0)
         );
-        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound),2);
+        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound), 2);
     }
 
     @Test
-    public void Should_findFreeItems_find_two_devices_third_whole_overlap(){
+    public void Should_findFreeItems_find_two_devices_third_whole_overlap() {
         Iterable<DeviceItem> freeItemsFound = stockRepository.findFreeItemsByDeviceIdAndHirePeriod(
                 SampleStock.s1_d1.getId(),
                 LocalDateTime.of(2017, 04, 25, 0, 0),
                 LocalDateTime.of(2017, 06, 01, 0, 0)
         );
-        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound),2);
+        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound), 2);
     }
 
     @Test
-    public void Should_findFreeItems_find_three_devices_period_in_window_between(){
+    public void Should_findFreeItems_find_three_devices_period_in_window_between() {
         Iterable<DeviceItem> freeItemsFound = stockRepository.findFreeItemsByDeviceIdAndHirePeriod(
                 SampleStock.s1_d1.getId(),
                 LocalDateTime.of(2017, 05, 11, 0, 0),
                 LocalDateTime.of(2017, 05, 20, 0, 0)
         );
-        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound),3);
+        Assert.assertEquals(SampleStock.getIterableSize(freeItemsFound), 3);
     }
 
 }

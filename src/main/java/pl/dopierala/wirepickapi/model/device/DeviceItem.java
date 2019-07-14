@@ -13,7 +13,7 @@ import java.util.Objects;
 public class DeviceItem implements Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @ManyToOne(cascade = CascadeType.PERSIST)
     private DeviceDefinition deviceDefinition;
     private LocalDateTime dateAddedToLibrary;

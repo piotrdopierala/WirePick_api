@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class BorrowEvent {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private LocalDateTime borrowStart;
     private LocalDateTime borrowEnd;
     private String notes;

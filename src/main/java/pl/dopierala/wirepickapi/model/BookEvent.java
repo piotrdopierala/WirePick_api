@@ -14,7 +14,7 @@ import java.util.Objects;
 public class BookEvent implements Comparable<BookEvent> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private LocalDateTime bookStart;
     private LocalDateTime bookEnd;
     private String notes;
