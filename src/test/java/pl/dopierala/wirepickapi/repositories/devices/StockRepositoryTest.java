@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.dopierala.wirepickapi.SampleStock;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
+import pl.dopierala.wirepickapi.repositories.user.UserRepository;
 
 import java.util.Optional;
 
@@ -18,14 +19,18 @@ public class StockRepositoryTest {
 
     @Autowired
     private StockRepository stockRepository;
-
     @Autowired
     private DevicesDefinitionRepository devicesDefinitionRepository;
+    @Autowired
+    private UserRepository userRepository;
+
 
     @Test
     public void Should_persist_and_find_deviceItem(){
         DeviceItem deviceItem = SampleStock.s1_d1;
 
+        userRepository.save(SampleStock.u1);
+        userRepository.save(SampleStock.u2);
         devicesDefinitionRepository.save(deviceItem.getDeviceDefinition());
         stockRepository.save(deviceItem);
         Optional<DeviceItem> foundById = stockRepository.findById(SampleStock.s1_d1.getId());

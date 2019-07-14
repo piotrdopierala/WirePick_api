@@ -52,7 +52,7 @@ public class SampleStock {
     public static void refreshValues() {
         generateUsers();
         generateStock();
-
+        generateBorrowHistory();
     }
 
     private static void generateStock() {
@@ -81,8 +81,16 @@ public class SampleStock {
     }
 
     private static void generateUsers() {
-        u1 = User.builder().withFirstName("UserSample1").build();
-        u2 = User.builder().withFirstName("UserSample2").build();
+        u1 = User.builder()
+                .withFirstName("UserSample1")
+                .withLogin("u1")
+                .withPassword("u1")
+                .build();
+        u2 = User.builder()
+                .withFirstName("UserSample2")
+                .withLogin("u2")
+                .withPassword("u2")
+                .build();
     }
 
     private static void generateBorrowHistory() {
@@ -149,6 +157,8 @@ public class SampleStock {
         s1_bookings.add(s1_u1_book1);
         s1_bookings.add(s1_u1_book2);
         s1_bookings.add(s1_u2_book1);
+
+        s1_d1.setBookings(s1_bookings);
     }
 
 

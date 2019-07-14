@@ -1,5 +1,6 @@
 package pl.dopierala.wirepickapi.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
 
@@ -19,10 +20,11 @@ public class BookEvent implements Comparable<BookEvent> {
     private String notes;
     @ManyToOne
     @JoinColumn
+    @JsonManagedReference
     private DeviceItem itemBooked;
     @ManyToOne
     private User user;
-    @OneToMany(mappedBy = "bookEvent", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "bookEvent", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
     private List<BorrowEvent> borrows;
 
     public BookEvent() {
