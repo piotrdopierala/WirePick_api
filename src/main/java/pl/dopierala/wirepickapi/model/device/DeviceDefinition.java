@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.util.Objects;
 
 @Entity
 public class DeviceDefinition implements Cloneable{
@@ -47,5 +48,18 @@ public class DeviceDefinition implements Cloneable{
         clone.id=this.id;
         clone.description=this.description;
         return clone;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DeviceDefinition)) return false;
+        DeviceDefinition that = (DeviceDefinition) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
