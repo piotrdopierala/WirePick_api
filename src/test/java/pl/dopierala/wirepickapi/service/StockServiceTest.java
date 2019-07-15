@@ -166,7 +166,7 @@ public class StockServiceTest {
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
         when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId,freeStart,freeEnd)).thenReturn(0);
 
-        Assert.assertTrue(stockService.isAvailable(testDeviceId, freeStart, freeEnd));
+        Assert.assertTrue(stockService.isBookAvailable(testDeviceId, freeStart, freeEnd));
     }
 
     //todo should be tested with H2 test DB. Not on real data.
@@ -227,7 +227,7 @@ public class StockServiceTest {
     }
 
     @Test
-    public void Should_findUserItemBookingsInPeriod_returnBooking(){
+    public void Should_findUserItemBookingInPeriod_returnBooking(){
         final long testDeviceId = 1L;
         final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
         final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
@@ -240,7 +240,16 @@ public class StockServiceTest {
 
         when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(SampleUsers.u2,testDeviceId,bookStart,bookEnd)).thenReturn(bookings.get(0));
 
-        Assert.assertEquals(Optional.of(bookings.get(0)),stockService.findUserItemBookingsInPeriod(SampleUsers.u2,testDeviceId,bookStart,bookEnd));
+        Assert.assertEquals(Optional.of(bookings.get(0)),stockService.findUserItemBookingInPeriod(SampleUsers.u2,testDeviceId,bookStart,bookEnd));
+    }
+
+    @Test
+    public void Should_borrow_item_borrow(){
+        //TODO finish test
+        // 1) check if is available in test period (fail test if not)
+        // 2) borrow
+        // 3) check if is NOT available any more in test period.
+        // test shouldnt by done with DB, ist unit test so it should only test serivce functionality
     }
 
 }

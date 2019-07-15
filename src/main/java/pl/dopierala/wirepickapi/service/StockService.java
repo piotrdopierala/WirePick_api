@@ -3,10 +3,10 @@ package pl.dopierala.wirepickapi.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyBookedException;
-import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
-import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
+import pl.dopierala.wirepickapi.exceptions.definitions.Stock.*;
 import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
 import pl.dopierala.wirepickapi.model.BookEvent;
+import pl.dopierala.wirepickapi.model.BorrowEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.repositories.devices.BookingsRepository;
@@ -43,6 +43,15 @@ public class StockService {
         }
     }
 
+    public BookEvent findBookingById(Long id) {
+        Optional<BookEvent> bookingFoundById = bookingsRepository.findById(id);
+        if (bookingFoundById.isPresent()) {
+            return bookingFoundById.get();
+        } else {
+            throw new BookingIdNotFoundException("Booking event id '" + id + "' not found.");
+        }
+    }
+
     public Iterable<DeviceItem> findStockByDeviceDefinition(Long deviceDefinitionId) throws StockItemByDeviceIdNotFoundException {
         Iterable<DeviceItem> itemsFoundByDeviceDefinitionId = stockRepository.findByDeviceDefinition_Id(deviceDefinitionId);
         if (itemsFoundByDeviceDefinitionId.iterator().hasNext()) {
@@ -56,6 +65,7 @@ public class StockService {
         return stockRepository.findFreeItemsByDeviceIdAndHirePeriod(deviceDefinitionId, from, to);
     }
 
+
     /**
      * Books device for given user from supplied date for given Duration
      *
@@ -67,7 +77,7 @@ public class StockService {
      */
     public int bookItem(Long itemId, LocalDateTime start, Duration duration, User user) throws StockItemIdNotFoundException, DeviceNotAvailableAlreadyBookedException {
         DeviceItem itemFoundById = findStockByItemId(itemId);
-        if (isAvailable(itemId, start, duration)) {
+        if (isBookAvailable(itemId, start, duration)) {
             itemFoundById.getBookings().add(new BookEvent(itemFoundById, start, duration, user));
             stockRepository.save(itemFoundById);
             return 0;
@@ -92,40 +102,81 @@ public class StockService {
     /*
     Reservation independent from actual rent branch
     Idea is that user can reserve some device but can return it earlier. When returning can decide whether to end reservation (shorten it) to day of return or not
-    TODO: Function to actual rent in reservation period. For now it should assume device is rents first day of reservation automatically
-    TODO: Function to actual return, user should decide weather to shorten the reservation period.
+    TODO: Function to actual rent in reservation period.
+    TODO: Function to actual return device, user should decide weather to shorten the reservation period.
      */
+
+    //TODO: write tests
+    public int borrowItem(User user, Long itemId, LocalDateTime start, LocalDateTime end) {
+
+        Optional<BookEvent> foundUserItemBookingInPeriod = findUserItemBookingInPeriod(user, itemId, start, end);
+
+        if (!foundUserItemBookingInPeriod.isPresent()) {
+            throw new ReservationNotFound("Reservation for user '" + user.getLogin() + "' of item id'" + itemId + "' in period from " + start + " to " + end + " not found.");
+        }
+        BookEvent foundBooking = foundUserItemBookingInPeriod.get();
+        return borrow(foundBooking, start, end);
+    }
+
+    //TODO: write tests
+    public int borrowItemToEndOfBookPeriod(User user, Long itemId, LocalDateTime start) {
+        LocalDateTime end = start;
+        Optional<BookEvent> foundUserItemBookingInPeriod = findUserItemBookingInPeriod(user, itemId, start, end);
+        if (!foundUserItemBookingInPeriod.isPresent()) {
+            throw new ReservationNotFound("Reservation for user '" + user.getLogin() + "' of item id'" + itemId + "' in date " + start + " not found.");
+        }
+        BookEvent foundBooking = foundUserItemBookingInPeriod.get();
+        end = foundBooking.getBookEnd();
+        return borrow(foundBooking, start, end);
+    }
+
+    private int borrow(BookEvent foundBooking, LocalDateTime start, LocalDateTime end) {
+        if (!isRentAvailable(foundBooking.getId(), start, end)) {
+            throw new DeviceNotAvailableAlreadyRentException();
+        }
+
+        foundBooking.getBorrows().add(new BorrowEvent(foundBooking, start, end));
+        bookingsRepository.save(foundBooking);
+        return 0;
+    }
 
 
     /**
-     * Checks whether device item is available to reserve given start date and period it of device.
+     * Checks whether device item is available to book given start date and period it of device.
      *
      * @param itemId  Stock item ID that will be checked if available
      * @param when    Start date of reservation period
      * @param howLong Period of reservation
      * @return if deviceDefinition is available or not
      */
-    public boolean isAvailable(Long itemId, LocalDateTime when, Duration howLong) {
+    public boolean isBookAvailable(Long itemId, LocalDateTime when, Duration howLong) {
 
         if (Objects.isNull(itemId) || Objects.isNull(when) || Objects.isNull(howLong)) {
             return false;
         }
-        return isAvailable(itemId, when, when.plus(howLong));
+        return isBookAvailable(itemId, when, when.plus(howLong));
     }
 
     /**
-     * Checks whether device item is available to reserve given start date and period od hire.
+     * Checks whether device item is available to book given start date and period od hire.
      *
      * @param itemId Stock item ID that will be checked if available
      * @param from   Start date of reservation period
      * @param end    End date of reservation period
      * @return if deviceDefinition is available or not
      */
-    public boolean isAvailable(Long itemId, LocalDateTime from, LocalDateTime end) {
+    public boolean isBookAvailable(Long itemId, LocalDateTime from, LocalDateTime end) {
         if (Objects.isNull(itemId) || Objects.isNull(from) || Objects.isNull(end)) {
             return false;
         }
         return (bookingsRepository.numberOfOverlappingBookPeriods(itemId, from, end) == 0);
+    }
+
+    public boolean isRentAvailable(Long bookId, LocalDateTime start, LocalDateTime end) {
+        if (Objects.isNull(bookId) || Objects.isNull(start) || Objects.isNull(end)) {
+            return false;
+        }
+        return (bookingsRepository.numberOfOverlappingRentPeriods(bookId, start, end) == 0);
     }
 
     /**
@@ -149,24 +200,24 @@ public class StockService {
     /**
      * Gets all bookings of given item by given User
      *
-     * @param user user who's bookings to find
+     * @param user   user who's bookings to find
      * @param itemId item witch bookings to find
      * @return iterable of BookEvent (all bookings)
      */
-    public Iterable<BookEvent> findAllUserItemBookings(User user, Long itemId){
+    public Iterable<BookEvent> findAllUserItemBookings(User user, Long itemId) {
         return bookingsRepository.findAllByUserAndItemBooked_Id(user, itemId);
     }
 
     /**
-     * Gets book event of given item by given User that covesr giver period
+     * Gets book event of given item by given User that covers given period
      *
-     * @param user iser who's booking to find
+     * @param user   iser who's booking to find
      * @param itemId item witch booking to find
-     * @param start start date of period that book event should include
-     * @param end end date of period that book event should include
+     * @param start  start date of period that book event should include
+     * @param end    end date of period that book event should include
      * @return
      */
-    public Optional<BookEvent> findUserItemBookingsInPeriod(User user, Long itemId, LocalDateTime start, LocalDateTime end){
-        return Optional.of(bookingsRepository.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(user,itemId,start,end));
+    public Optional<BookEvent> findUserItemBookingInPeriod(User user, Long itemId, LocalDateTime start, LocalDateTime end) {
+        return Optional.of(bookingsRepository.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(user, itemId, start, end));
     }
 }
