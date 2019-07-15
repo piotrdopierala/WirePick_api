@@ -14,6 +14,7 @@ import pl.dopierala.wirepickapi.repositories.devices.StockRepository;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -48,7 +49,7 @@ public class StockService {
         if (bookingFoundById.isPresent()) {
             return bookingFoundById.get();
         } else {
-            throw new BookingIdNotFoundException("Booking event id '" + id + "' not found.");
+            throw new BookingNotFoundException("Booking event id '" + id + "' not found.");
         }
     }
 
@@ -99,14 +100,16 @@ public class StockService {
         return bookItem(itemId, start, Duration.between(start, end), user);
     }
 
-    /*
-    Reservation independent from actual rent branch
-    Idea is that user can reserve some device but can return it earlier. When returning can decide whether to end reservation (shorten it) to day of return or not
-    TODO: Function to actual rent in reservation period.
-    TODO: Function to actual return device, user should decide weather to shorten the reservation period.
+    //TODO: write unit tests
+    /**
+     * Marks item as borrowed in given period
+     *
+     * @param user user that borrows given item
+     * @param itemId item id that is being borrowed
+     * @param start start of borrow period
+     * @param end end of borrow period
+     * @return 0 - borrow succeeded
      */
-
-    //TODO: write tests
     public int borrowItem(User user, Long itemId, LocalDateTime start, LocalDateTime end) {
 
         Optional<BookEvent> foundUserItemBookingInPeriod = findUserItemBookingInPeriod(user, itemId, start, end);
@@ -118,7 +121,15 @@ public class StockService {
         return borrow(foundBooking, start, end);
     }
 
-    //TODO: write tests
+    //TODO: write unit tests
+    /**
+     * Marks given item as borrowed from start DateTime to end of booking period
+     *
+     * @param user user that borrows item
+     * @param itemId item id that is being borrowed
+     * @param start start of borrow period
+     * @return 0 - borrow succeeded
+     */
     public int borrowItemToEndOfBookPeriod(User user, Long itemId, LocalDateTime start) {
         LocalDateTime end = start;
         Optional<BookEvent> foundUserItemBookingInPeriod = findUserItemBookingInPeriod(user, itemId, start, end);
@@ -140,6 +151,29 @@ public class StockService {
         return 0;
     }
 
+    //TODO write unit tests
+    /**
+     * Returns device, closes reservation with current date and time
+     *
+     * @param user user witch returns item
+     * @param itemId id of item to return
+     * @return 0 - return succeeded
+     */
+    public int returnItem(User user, Long itemId){
+        LocalDateTime returnDateTime = LocalDateTime.now();
+        BookEvent foundBookEvent = bookingsRepository.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(user, itemId, returnDateTime, returnDateTime);
+        if(Objects.isNull(foundBookEvent)){
+            throw new BookingNotFoundException("Item of id '"+itemId+"' is not currently booked by user '"+user.getLogin()+"'.");
+        }
+        foundBookEvent.setBookEnd(returnDateTime);
+        List<BorrowEvent> borrows = foundBookEvent.getBorrows();
+        if(borrows.size()>0){
+            BorrowEvent lastBorrowEvent = borrows.get(borrows.size() - 1);
+            lastBorrowEvent.setBorrowEnd(returnDateTime);
+        }
+        bookingsRepository.save(foundBookEvent);
+        return 0;
+    }
 
     /**
      * Checks whether device item is available to book given start date and period it of device.
