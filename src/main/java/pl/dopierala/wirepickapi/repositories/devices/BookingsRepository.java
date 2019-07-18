@@ -21,6 +21,7 @@ public interface BookingsRepository extends CrudRepository<BookEvent, Long> {
     BookEvent findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(User user, Long ItemId, LocalDateTime start, LocalDateTime end);
 
     //TODO finish test, sql from code below
+
     /**
      * Return number of overlapping period.
      * 0 if its available.
@@ -31,7 +32,7 @@ public interface BookingsRepository extends CrudRepository<BookEvent, Long> {
      * @return 0 if is available, otherwise number of overlapping periods.
      */
     @Query(value = "SELECT count(1) FROM wirepick.book_event be " +
-            "WHERE (:from <= book_end AND :to >= book_start) AND be.item_hired_id=:itemId"
+            "WHERE (:from <= book_end AND :to >= book_start) AND be.item_booked_id=:itemId"
             , nativeQuery = true)
     Integer numberOfOverlappingBookPeriods(@Param("itemId") Long itemId,
                                            @Param("from") LocalDateTime from,
@@ -42,15 +43,16 @@ public interface BookingsRepository extends CrudRepository<BookEvent, Long> {
      * 0 if available
      *
      * @param bookId ID of booking to check
-     * @param from start period to check
-     * @param to end of period to check
+     * @param from   start period to check
+     * @param to     end of period to check
      * @return 0 if is available, otherwise number of overlapping periods.
      */
-    @Query(value = "SELECT count(1) FROM wirepick.book_event bke" +
-    "JOIN wirepick.borrow_event bre" +
-    "ON bke.id=bre.book_event_id" +
-    "WHERE bke.id=:bookId AND" +
-    ":to>=bre.borrow_start AND :from<=bre.borrow_end", nativeQuery = true)
+    @Query(value = "SELECT count(1) FROM wirepick.book_event bke " +
+            "JOIN wirepick.borrow_event bre " +
+            "ON bke.id=bre.book_event_id " +
+            "WHERE bke.id=:bookId AND " +
+            " :from <=bre.borrow_end AND " +
+            " :to >=bre.borrow_start", nativeQuery = true)
     Integer numberOfOverlappingRentPeriods(@Param("bookId") Long bookId,
                                            @Param("from") LocalDateTime from,
                                            @Param("to") LocalDateTime to);
