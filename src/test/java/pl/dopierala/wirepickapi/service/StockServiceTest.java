@@ -14,6 +14,8 @@ import pl.dopierala.wirepickapi.SampleStock;
 import pl.dopierala.wirepickapi.SampleUsers;
 import pl.dopierala.wirepickapi.Utils;
 import pl.dopierala.wirepickapi.exceptions.definitions.DeviceNotAvailableAlreadyBookedException;
+import pl.dopierala.wirepickapi.exceptions.definitions.Stock.BookingNotFoundException;
+import pl.dopierala.wirepickapi.exceptions.definitions.Stock.DeviceNotAvailableAlreadyRentException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemByDeviceIdNotFoundException;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.StockItemIdNotFoundException;
 import pl.dopierala.wirepickapi.model.BookEvent;
@@ -166,7 +168,6 @@ public class StockServiceTest {
                 hireEnd,
                 SampleUsers.u1));
 
-        when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
         when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId,freeStart,freeEnd)).thenReturn(0);
 
         Assert.assertTrue(stockService.isBookAvailable(testDeviceId, freeStart, freeEnd));
@@ -187,7 +188,6 @@ public class StockServiceTest {
                 hireEnd,
                 SampleUsers.u1));
 
-        when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
         when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId,freeStart,freeEnd)).thenReturn(1);
 
         Assert.assertFalse(stockService.isBookAvailable(testDeviceId, freeStart, freeEnd));
@@ -210,7 +210,6 @@ public class StockServiceTest {
 
         Assert.assertEquals(Lists.emptyList(),stockService.findAllUserBookings(SampleUsers.u1));
         Assert.assertEquals(bookings,stockService.findAllUserBookings(SampleUsers.u2));
-
     }
 
     @Test
@@ -262,12 +261,6 @@ public class StockServiceTest {
 
     @Test
     public void Should_borrow_item_borrow() throws CloneNotSupportedException {
-        //TODO finish test
-        // 1) check if is available in test period (fail test if not)
-        // 2) borrow
-        // 3) check if is NOT available any more in test period.
-        // test shouldn't by done with DB, ist unit test so it should only test service functionality
-
         //given
         final long testItemId = 1L;
         final LocalDateTime borrowStart = LocalDateTime.of(2017, 05, 20, 0, 0);
@@ -291,9 +284,41 @@ public class StockServiceTest {
         Assert.assertEquals(borrowStart,borrowEvent.getBorrowStart());
         Assert.assertEquals(borrowEnd,borrowEvent.getBorrowEnd());
         verify(bookingsRepositoryMock).save(sampleBooking);
-
-        //todo write another test of this method to check if throws exception booking not found
-        //todo write another test of this method to check if throws exception DeviceNotAvailableAlreadyRentException
     }
 
+    @Test(expected = BookingNotFoundException.class)
+    public void Should_borrow_not_find_booking() throws CloneNotSupportedException {
+        //given
+        final long testItemId = 1L;
+        final LocalDateTime borrowStart = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime borrowEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+        final User sampleUser = SampleStock.u1;
+        final BookEvent sampleBooking = s1_u1_book1.clone();
+
+        //when
+        sampleBooking.setId(0);
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser,testItemId,borrowStart,borrowEnd)).thenReturn(null);
+
+
+        //then (expected exception)
+        stockService.borrowItem(sampleUser,testItemId,borrowStart,borrowEnd);
+    }
+
+    @Test(expected = DeviceNotAvailableAlreadyRentException.class)
+    public void Should_borrow_throw_excp_already_rent() throws CloneNotSupportedException {
+        //given
+        final long testItemId = 1L;
+        final LocalDateTime borrowStart = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime borrowEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+        final User sampleUser = SampleStock.u1;
+        final BookEvent sampleBooking = s1_u1_book1.clone();
+
+        //when
+        sampleBooking.setId(0);
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser,testItemId,borrowStart,borrowEnd)).thenReturn(sampleBooking);
+        when(bookingsRepositoryMock.numberOfOverlappingRentPeriods(sampleBooking.getId(),borrowStart,borrowEnd)).thenReturn(1);
+
+        //then (expected exception)
+        stockService.borrowItem(sampleUser,testItemId,borrowStart,borrowEnd);
+    }
 }

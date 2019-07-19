@@ -110,12 +110,12 @@ public class StockService {
      * @param end end of borrow period
      * @return 0 - borrow succeeded
      */
-    public int borrowItem(User user, Long itemId, LocalDateTime start, LocalDateTime end) {
+    public int borrowItem(User user, Long itemId, LocalDateTime start, LocalDateTime end) throws BookingNotFoundException {
 
         Optional<BookEvent> foundUserItemBookingInPeriod = findUserItemBookingInPeriod(user, itemId, start, end);
 
         if (!foundUserItemBookingInPeriod.isPresent()) {
-            throw new ReservationNotFound("Reservation for user '" + user.getLogin() + "' of item id'" + itemId + "' in period from " + start + " to " + end + " not found.");
+            throw new BookingNotFoundException("Reservation for user '" + user.getLogin() + "' of item id'" + itemId + "' in period from " + start + " to " + end + " not found.");
         }
         BookEvent foundBooking = foundUserItemBookingInPeriod.get();
         return borrow(foundBooking, start, end);
@@ -130,11 +130,11 @@ public class StockService {
      * @param start start of borrow period
      * @return 0 - borrow succeeded
      */
-    public int borrowItemToEndOfBookPeriod(User user, Long itemId, LocalDateTime start) {
+    public int borrowItemToEndOfBookPeriod(User user, Long itemId, LocalDateTime start) throws BookingNotFoundException {
         LocalDateTime end = start;
         Optional<BookEvent> foundUserItemBookingInPeriod = findUserItemBookingInPeriod(user, itemId, start, end);
         if (!foundUserItemBookingInPeriod.isPresent()) {
-            throw new ReservationNotFound("Reservation for user '" + user.getLogin() + "' of item id'" + itemId + "' in date " + start + " not found.");
+            throw new BookingNotFoundException("Reservation for user '" + user.getLogin() + "' of item id'" + itemId + "' in date " + start + " not found.");
         }
         BookEvent foundBooking = foundUserItemBookingInPeriod.get();
         end = foundBooking.getBookEnd();
@@ -252,6 +252,6 @@ public class StockService {
      * @return
      */
     public Optional<BookEvent> findUserItemBookingInPeriod(User user, Long itemId, LocalDateTime start, LocalDateTime end) {
-        return Optional.of(bookingsRepository.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(user, itemId, start, end));
+        return Optional.ofNullable(bookingsRepository.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(user, itemId, start, end));
     }
 }
