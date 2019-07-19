@@ -3,6 +3,7 @@ package pl.dopierala.wirepickapi.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
+import pl.dopierala.wirepickapi.repositories.devices.BookingsRepository;
 
 import javax.persistence.*;
 import java.time.Duration;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-public class BookEvent implements Comparable<BookEvent> {
+public class BookEvent implements Comparable<BookEvent>, Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -187,5 +188,10 @@ public class BookEvent implements Comparable<BookEvent> {
     @Override
     public int hashCode() {
         return Objects.hash(bookStart, bookEnd, user);
+    }
+
+    @Override
+    public BookEvent clone() throws CloneNotSupportedException {
+        return (BookEvent) super.clone();
     }
 }

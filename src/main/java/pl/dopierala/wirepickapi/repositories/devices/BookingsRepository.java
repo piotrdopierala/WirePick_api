@@ -20,8 +20,6 @@ public interface BookingsRepository extends CrudRepository<BookEvent, Long> {
 
     BookEvent findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(User user, Long ItemId, LocalDateTime start, LocalDateTime end);
 
-    //TODO finish test, sql from code below
-
     /**
      * Return number of overlapping period.
      * 0 if its available.
