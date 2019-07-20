@@ -119,12 +119,12 @@ public class StockServiceTest {
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         List<BookEvent> bookings = s1_d1_clone.getBookings();
-        bookings.add(new BookEvent(s1_d1_clone,LocalDateTime.of(2017, 05, 20, 0, 0),
+        bookings.add(new BookEvent(s1_d1_clone, LocalDateTime.of(2017, 05, 20, 0, 0),
                 LocalDateTime.of(2017, 05, 22, 0, 0),
                 SampleUsers.u1));
 
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId,bookStartDate,bookEndDate)).thenReturn(1);
+        when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId, bookStartDate, bookEndDate)).thenReturn(1);
 
         stockService.bookItem(testDeviceId,
                 bookStartDate,
@@ -142,7 +142,7 @@ public class StockServiceTest {
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         int beginBookingsSize = s1_d1_clone.getBookings().size();
         when(stockRepositoryMock.findById(testDeviceId)).thenReturn(Optional.of(s1_d1_clone));
-        when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId,bookStartDate,bookEndDate)).thenReturn(0);
+        when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId, bookStartDate, bookEndDate)).thenReturn(0);
 
         stockService.bookItem(testDeviceId,
                 bookStartDate,
@@ -164,11 +164,11 @@ public class StockServiceTest {
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         List<BookEvent> hires = s1_d1_clone.getBookings();
-        hires.add(new BookEvent(s1_d1_clone,hireStart,
+        hires.add(new BookEvent(s1_d1_clone, hireStart,
                 hireEnd,
                 SampleUsers.u1));
 
-        when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId,freeStart,freeEnd)).thenReturn(0);
+        when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId, freeStart, freeEnd)).thenReturn(0);
 
         Assert.assertTrue(stockService.isBookAvailable(testDeviceId, freeStart, freeEnd));
     }
@@ -184,79 +184,79 @@ public class StockServiceTest {
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         List<BookEvent> hires = s1_d1_clone.getBookings();
         hires.add(new BookEvent(
-                s1_d1_clone,hireStart,
+                s1_d1_clone, hireStart,
                 hireEnd,
                 SampleUsers.u1));
 
-        when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId,freeStart,freeEnd)).thenReturn(1);
+        when(bookingsRepositoryMock.numberOfOverlappingBookPeriods(testDeviceId, freeStart, freeEnd)).thenReturn(1);
 
         Assert.assertFalse(stockService.isBookAvailable(testDeviceId, freeStart, freeEnd));
     }
 
 
     @Test
-    public void Should_findAllUserBookings_return_User_BookEvents(){
+    public void Should_findAllUserBookings_return_User_BookEvents() {
         final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
         final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         List<BookEvent> bookings = s1_d1_clone.getBookings();
-        bookings.add(new BookEvent(s1_d1_clone,bookStart,
+        bookings.add(new BookEvent(s1_d1_clone, bookStart,
                 bookEnd,
                 SampleUsers.u2));
 
         when(bookingsRepositoryMock.findAllByUser(SampleUsers.u1)).thenReturn(Lists.emptyList());
         when(bookingsRepositoryMock.findAllByUser(SampleUsers.u2)).thenReturn(bookings);
 
-        Assert.assertEquals(Lists.emptyList(),stockService.findAllUserBookings(SampleUsers.u1));
-        Assert.assertEquals(bookings,stockService.findAllUserBookings(SampleUsers.u2));
+        Assert.assertEquals(Lists.emptyList(), stockService.findAllUserBookings(SampleUsers.u1));
+        Assert.assertEquals(bookings, stockService.findAllUserBookings(SampleUsers.u2));
     }
 
     @Test
-    public void Should_findFreeStockByDeviceDefinition_ReturnAvailableItems(){
+    public void Should_findFreeStockByDeviceDefinition_ReturnAvailableItems() {
         final long testDeviceId = 1L;
         final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
         final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
 
-        when(stockRepositoryMock.findFreeItemsByDeviceIdAndHirePeriod(testDeviceId,bookStart,bookEnd)).thenReturn(Arrays.asList(s1_d1, s2_d1));
+        when(stockRepositoryMock.findFreeItemsByDeviceIdAndHirePeriod(testDeviceId, bookStart, bookEnd)).thenReturn(Arrays.asList(s1_d1, s2_d1));
 
-        Assert.assertEquals(Utils.getIterableSize(stockService.findFreeStockByDeviceDefinition(testDeviceId,bookStart,bookEnd)),2);
+        Assert.assertEquals(Utils.getIterableSize(stockService.findFreeStockByDeviceDefinition(testDeviceId, bookStart, bookEnd)), 2);
     }
 
     @Test
-    public void Should_findAllUserItemBookings_returnBookings(){
-        final long testDeviceId = 1L;
-        final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
-        final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
-
-        DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
-        List<BookEvent> bookings = s1_d1_clone.getBookings();
-        bookings.add(new BookEvent(s1_d1_clone,bookStart,
-                bookEnd,
-                SampleUsers.u2));
-
-        when(bookingsRepositoryMock.findAllByUserAndItemBooked_Id(SampleUsers.u1,testDeviceId)).thenReturn(Lists.emptyList());
-        when(bookingsRepositoryMock.findAllByUserAndItemBooked_Id(SampleUsers.u2,testDeviceId)).thenReturn(bookings);
-
-        Assert.assertEquals(Lists.emptyList(),stockService.findAllUserItemBookings(SampleUsers.u1,testDeviceId));
-        Assert.assertEquals(bookings,stockService.findAllUserItemBookings(SampleUsers.u2,testDeviceId));
-    }
-
-    @Test
-    public void Should_findUserItemBookingInPeriod_returnBooking(){
+    public void Should_findAllUserItemBookings_returnBookings() {
         final long testDeviceId = 1L;
         final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
         final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
 
         DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
         List<BookEvent> bookings = s1_d1_clone.getBookings();
-        bookings.add(new BookEvent(s1_d1_clone,bookStart,
+        bookings.add(new BookEvent(s1_d1_clone, bookStart,
                 bookEnd,
                 SampleUsers.u2));
 
-        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(SampleUsers.u2,testDeviceId,bookStart,bookEnd)).thenReturn(bookings.get(0));
+        when(bookingsRepositoryMock.findAllByUserAndItemBooked_Id(SampleUsers.u1, testDeviceId)).thenReturn(Lists.emptyList());
+        when(bookingsRepositoryMock.findAllByUserAndItemBooked_Id(SampleUsers.u2, testDeviceId)).thenReturn(bookings);
 
-        Assert.assertEquals(Optional.of(bookings.get(0)),stockService.findUserItemBookingInPeriod(SampleUsers.u2,testDeviceId,bookStart,bookEnd));
+        Assert.assertEquals(Lists.emptyList(), stockService.findAllUserItemBookings(SampleUsers.u1, testDeviceId));
+        Assert.assertEquals(bookings, stockService.findAllUserItemBookings(SampleUsers.u2, testDeviceId));
+    }
+
+    @Test
+    public void Should_findUserItemBookingInPeriod_returnBooking() {
+        final long testDeviceId = 1L;
+        final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
+        final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+
+        DeviceItem s1_d1_clone = SampleStock.s1_d1.clone();
+        List<BookEvent> bookings = s1_d1_clone.getBookings();
+        bookings.add(new BookEvent(s1_d1_clone, bookStart,
+                bookEnd,
+                SampleUsers.u2));
+
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(SampleUsers.u2, testDeviceId, bookStart, bookEnd)).thenReturn(bookings.get(0));
+
+        Assert.assertEquals(Optional.of(bookings.get(0)), stockService.findUserItemBookingInPeriod(SampleUsers.u2, testDeviceId, bookStart, bookEnd));
     }
 
     @Test
@@ -271,18 +271,18 @@ public class StockServiceTest {
 
         //when
         sampleBooking.setId(0);
-        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser,testItemId,borrowStart,borrowEnd)).thenReturn(sampleBooking);
-        when(bookingsRepositoryMock.numberOfOverlappingRentPeriods(sampleBooking.getId(),borrowStart,borrowEnd)).thenReturn(0);
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser, testItemId, borrowStart, borrowEnd)).thenReturn(sampleBooking);
+        when(bookingsRepositoryMock.numberOfOverlappingRentPeriods(sampleBooking.getId(), borrowStart, borrowEnd)).thenReturn(0);
 
-        stockService.borrowItem(sampleUser,testItemId,borrowStart,borrowEnd);
+        stockService.borrowItem(sampleUser, testItemId, borrowStart, borrowEnd);
 
         //then
         final List<BorrowEvent> borrowsAfterAdd = sampleBooking.getBorrows();
         final BorrowEvent borrowEvent = borrowsAfterAdd.get(borrowsAfterAdd.size() - 1);
 
-        Assert.assertEquals(sampleBookingBorrowsStartCount+1,borrowsAfterAdd.size());
-        Assert.assertEquals(borrowStart,borrowEvent.getBorrowStart());
-        Assert.assertEquals(borrowEnd,borrowEvent.getBorrowEnd());
+        Assert.assertEquals(sampleBookingBorrowsStartCount + 1, borrowsAfterAdd.size());
+        Assert.assertEquals(borrowStart, borrowEvent.getBorrowStart());
+        Assert.assertEquals(borrowEnd, borrowEvent.getBorrowEnd());
         verify(bookingsRepositoryMock).save(sampleBooking);
     }
 
@@ -297,11 +297,11 @@ public class StockServiceTest {
 
         //when
         sampleBooking.setId(0);
-        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser,testItemId,borrowStart,borrowEnd)).thenReturn(null);
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser, testItemId, borrowStart, borrowEnd)).thenReturn(null);
 
 
         //then (expected exception)
-        stockService.borrowItem(sampleUser,testItemId,borrowStart,borrowEnd);
+        stockService.borrowItem(sampleUser, testItemId, borrowStart, borrowEnd);
     }
 
     @Test(expected = DeviceNotAvailableAlreadyRentException.class)
@@ -315,11 +315,11 @@ public class StockServiceTest {
 
         //when
         sampleBooking.setId(0);
-        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser,testItemId,borrowStart,borrowEnd)).thenReturn(sampleBooking);
-        when(bookingsRepositoryMock.numberOfOverlappingRentPeriods(sampleBooking.getId(),borrowStart,borrowEnd)).thenReturn(1);
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser, testItemId, borrowStart, borrowEnd)).thenReturn(sampleBooking);
+        when(bookingsRepositoryMock.numberOfOverlappingRentPeriods(sampleBooking.getId(), borrowStart, borrowEnd)).thenReturn(1);
 
         //then (expected exception)
-        stockService.borrowItem(sampleUser,testItemId,borrowStart,borrowEnd);
+        stockService.borrowItem(sampleUser, testItemId, borrowStart, borrowEnd);
     }
 
     @Test
@@ -335,18 +335,60 @@ public class StockServiceTest {
 
         //when
         sampleBooking.setId(0);
-        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser,testItemId,borrowStart,borrowStart)).thenReturn(sampleBooking);
-        when(bookingsRepositoryMock.numberOfOverlappingRentPeriods(sampleBooking.getId(),borrowStart,borrowEnd)).thenReturn(0);
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser, testItemId, borrowStart, borrowStart)).thenReturn(sampleBooking);
+        when(bookingsRepositoryMock.numberOfOverlappingRentPeriods(sampleBooking.getId(), borrowStart, borrowEnd)).thenReturn(0);
 
-        stockService.borrowItemToEndOfBookPeriod(sampleUser,testItemId,borrowStart);
+        stockService.borrowItemToEndOfBookPeriod(sampleUser, testItemId, borrowStart);
 
         //then
         final List<BorrowEvent> borrowsAfterAdd = sampleBooking.getBorrows();
         final BorrowEvent borrowEvent = borrowsAfterAdd.get(borrowsAfterAdd.size() - 1);
 
-        Assert.assertEquals(sampleBookingBorrowsStartCount+1,borrowsAfterAdd.size());
-        Assert.assertEquals(borrowStart,borrowEvent.getBorrowStart());
-        Assert.assertEquals(bookEnd,borrowEvent.getBorrowEnd());
+        Assert.assertEquals(sampleBookingBorrowsStartCount + 1, borrowsAfterAdd.size());
+        Assert.assertEquals(borrowStart, borrowEvent.getBorrowStart());
+        Assert.assertEquals(bookEnd, borrowEvent.getBorrowEnd());
         verify(bookingsRepositoryMock).save(sampleBooking);
+    }
+
+    @Test
+    public void Should_return_successfully_return() throws CloneNotSupportedException {
+        //given
+        final long testItemId = 1L;
+        final User sampleUser = SampleStock.u1;
+        final BookEvent sampleBooking = s1_u1_book1.clone();
+        final LocalDateTime returnDateTime = LocalDateTime.of(2017, 05, 5, 12, 0);
+
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser, testItemId, returnDateTime, returnDateTime)).thenReturn(sampleBooking);
+
+        Assert.assertTrue(returnDateTime.isBefore(sampleBooking.getBookEnd()));
+        Assert.assertTrue(returnDateTime.isBefore(sampleBooking.getBorrows().get(sampleBooking.getBorrows().size()-1).getBorrowEnd()));
+
+        stockService.returnItem(sampleUser,testItemId, returnDateTime);
+
+        Assert.assertEquals(returnDateTime,sampleBooking.getBookEnd());
+        Assert.assertEquals(returnDateTime,sampleBooking.getBorrows().get(sampleBooking.getBorrows().size()-1).getBorrowEnd());
+        verify(bookingsRepositoryMock).save(sampleBooking);
+    }
+
+    @Test(expected = BookingNotFoundException.class)
+    public void Should_return_throw_bookingNotFound_exception() throws CloneNotSupportedException {
+        //given
+        final long testItemId = 1L;
+        final User sampleUser = SampleStock.u1;
+        final BookEvent sampleBooking = s1_u1_book1.clone();
+        final LocalDateTime returnDateTime = LocalDateTime.of(2017, 05, 5, 12, 0);
+
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser, testItemId, returnDateTime, returnDateTime)).thenReturn(null);
+
+        stockService.returnItem(sampleUser,testItemId, returnDateTime);
+    }
+
+    @Test
+    public void Should_saveNewItem_save_new_device(){
+        final DeviceItem newItem = s1_d1.clone();
+
+        stockService.saveNewItem(newItem);
+
+        verify(stockRepositoryMock).save(newItem);
     }
 }

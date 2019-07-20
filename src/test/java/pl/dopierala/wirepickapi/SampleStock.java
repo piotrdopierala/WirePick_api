@@ -4,6 +4,7 @@ import pl.dopierala.wirepickapi.model.BookEvent;
 import pl.dopierala.wirepickapi.model.BorrowEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceDefinition;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
+import pl.dopierala.wirepickapi.model.user.Roles;
 import pl.dopierala.wirepickapi.model.user.User;
 
 import java.time.LocalDateTime;
@@ -85,11 +86,13 @@ public class SampleStock {
                 .withFirstName("UserSample1")
                 .withLogin("u1")
                 .withPassword("u1")
+                .withRole(Roles.USER)
                 .build();
         u2 = User.builder()
                 .withFirstName("UserSample2")
                 .withLogin("u2")
                 .withPassword("u2")
+                .withRole(Roles.USER)
                 .build();
     }
 

@@ -149,16 +149,15 @@ public class StockService {
         return 0;
     }
 
-    //TODO write unit tests
     /**
-     * Returns device, closes reservation with current date and time
+     * Returns device, closes reservation with supplied date and time
      *
      * @param user user witch returns item
      * @param itemId id of item to return
+     * @param returnDateTime timestamp of return (must be within book period)
      * @return 0 - return succeeded
      */
-    public int returnItem(User user, Long itemId){
-        LocalDateTime returnDateTime = LocalDateTime.now();
+    public int returnItem(User user, Long itemId, LocalDateTime returnDateTime){
         BookEvent foundBookEvent = bookingsRepository.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(user, itemId, returnDateTime, returnDateTime);
         if(Objects.isNull(foundBookEvent)){
             throw new BookingNotFoundException("Item of id '"+itemId+"' is not currently booked by user '"+user.getLogin()+"'.");
@@ -222,7 +221,6 @@ public class StockService {
     }
 
 
-    //TODO write test
     public DeviceItem saveNewItem(DeviceItem newItem) {
         newItem.setId(0);
         return stockRepository.save(newItem);

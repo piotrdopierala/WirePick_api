@@ -66,7 +66,7 @@ public class StockController {
 
         stockService.bookItem(stockItemId, reservationDateFrom, reservationDateTo, userById);
 
-        return ResponseEntity.accepted().body("Device Hired");
+        return ResponseEntity.accepted().body("Device Reserved");
     }
 
     private LocalDateTime parseDate(String dateToParse) {
