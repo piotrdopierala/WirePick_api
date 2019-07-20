@@ -100,7 +100,6 @@ public class StockService {
         return bookItem(itemId, start, Duration.between(start, end), user);
     }
 
-    //TODO: write unit tests
     /**
      * Marks item as borrowed in given period
      *
@@ -121,7 +120,6 @@ public class StockService {
         return borrow(foundBooking, start, end);
     }
 
-    //TODO: write unit tests
     /**
      * Marks given item as borrowed from start DateTime to end of booking period
      *
@@ -130,7 +128,7 @@ public class StockService {
      * @param start start of borrow period
      * @return 0 - borrow succeeded
      */
-    public int borrowItemToEndOfBookPeriod(User user, Long itemId, LocalDateTime start) throws BookingNotFoundException {
+    public int borrowItemToEndOfBookPeriod(User user, Long itemId, LocalDateTime start) throws BookingNotFoundException, DeviceNotAvailableAlreadyRentException {
         LocalDateTime end = start;
         Optional<BookEvent> foundUserItemBookingInPeriod = findUserItemBookingInPeriod(user, itemId, start, end);
         if (!foundUserItemBookingInPeriod.isPresent()) {
@@ -141,7 +139,7 @@ public class StockService {
         return borrow(foundBooking, start, end);
     }
 
-    private int borrow(BookEvent foundBooking, LocalDateTime start, LocalDateTime end) {
+    private int borrow(BookEvent foundBooking, LocalDateTime start, LocalDateTime end) throws DeviceNotAvailableAlreadyRentException {
         if (!isRentAvailable(foundBooking.getId(), start, end)) {
             throw new DeviceNotAvailableAlreadyRentException();
         }

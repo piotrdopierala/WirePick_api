@@ -195,7 +195,7 @@ public class StockServiceTest {
 
 
     @Test
-    public void Should_return_User_BookEvents(){
+    public void Should_findAllUserBookings_return_User_BookEvents(){
         final LocalDateTime bookStart = LocalDateTime.of(2017, 05, 20, 0, 0);
         final LocalDateTime bookEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
 
@@ -263,8 +263,8 @@ public class StockServiceTest {
     public void Should_borrow_item_borrow() throws CloneNotSupportedException {
         //given
         final long testItemId = 1L;
-        final LocalDateTime borrowStart = LocalDateTime.of(2017, 05, 20, 0, 0);
-        final LocalDateTime borrowEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+        final LocalDateTime borrowStart = LocalDateTime.of(2017, 05, 2, 0, 0);
+        final LocalDateTime borrowEnd = LocalDateTime.of(2017, 05, 5, 0, 0);
         final User sampleUser = SampleStock.u1;
         final BookEvent sampleBooking = s1_u1_book1.clone();
         final int sampleBookingBorrowsStartCount = sampleBooking.getBorrows().size();
@@ -320,5 +320,33 @@ public class StockServiceTest {
 
         //then (expected exception)
         stockService.borrowItem(sampleUser,testItemId,borrowStart,borrowEnd);
+    }
+
+    @Test
+    public void Should_borrowItemToEndOfBookPeriod_borrow_to_end_book() throws CloneNotSupportedException {
+        //given
+        final long testItemId = 1L;
+        final LocalDateTime borrowStart = LocalDateTime.of(2017, 05, 2, 0, 0);
+        final LocalDateTime borrowEnd = LocalDateTime.of(2017, 05, 22, 0, 0);
+        final User sampleUser = SampleStock.u1;
+        final BookEvent sampleBooking = s1_u1_book1.clone();
+        final LocalDateTime bookEnd = sampleBooking.getBookEnd();
+        final int sampleBookingBorrowsStartCount = sampleBooking.getBorrows().size();
+
+        //when
+        sampleBooking.setId(0);
+        when(bookingsRepositoryMock.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(sampleUser,testItemId,borrowStart,borrowStart)).thenReturn(sampleBooking);
+        when(bookingsRepositoryMock.numberOfOverlappingRentPeriods(sampleBooking.getId(),borrowStart,borrowEnd)).thenReturn(0);
+
+        stockService.borrowItemToEndOfBookPeriod(sampleUser,testItemId,borrowStart);
+
+        //then
+        final List<BorrowEvent> borrowsAfterAdd = sampleBooking.getBorrows();
+        final BorrowEvent borrowEvent = borrowsAfterAdd.get(borrowsAfterAdd.size() - 1);
+
+        Assert.assertEquals(sampleBookingBorrowsStartCount+1,borrowsAfterAdd.size());
+        Assert.assertEquals(borrowStart,borrowEvent.getBorrowStart());
+        Assert.assertEquals(bookEnd,borrowEvent.getBorrowEnd());
+        verify(bookingsRepositoryMock).save(sampleBooking);
     }
 }
