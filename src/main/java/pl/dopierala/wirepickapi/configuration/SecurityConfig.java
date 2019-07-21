@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import pl.dopierala.wirepickapi.model.user.Roles;
@@ -13,10 +14,13 @@ import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.service.UserService;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserService userDetailsService;
+    @Autowired
+    UserSecurity userSecurity;
 
     @Autowired
     BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -33,9 +37,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/secret")
-                .hasRole("ADMIN")
+                    .hasRole("ADMIN")
                 .antMatchers("/test")
-                .permitAll()
+                    .permitAll()
+                .antMatchers("/**/user/{userId}/**/")
+                    .access("@userSecurity.hasUserId(authentication,#userId)")
                 .and()
                 .csrf().disable()
                 .formLogin().permitAll()
