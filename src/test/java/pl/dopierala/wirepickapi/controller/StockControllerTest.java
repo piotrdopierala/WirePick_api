@@ -4,12 +4,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 import pl.dopierala.wirepickapi.SampleStock;
 import pl.dopierala.wirepickapi.SampleUsers;
+import pl.dopierala.wirepickapi.configuration.UserSecurity;
 import pl.dopierala.wirepickapi.configuration.WebMvcConfig;
 import pl.dopierala.wirepickapi.exceptions.definitions.UserNotFoundException;
 import pl.dopierala.wirepickapi.service.StockService;
@@ -26,14 +36,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = StockController.class,secure = false)
+@WebMvcTest(controllers = StockController.class ,secure = false)
 public class StockControllerTest {
 
     @Autowired
     MockMvc mockMvc;
 
-    @MockBean
-    WebMvcConfig webMvcConfig;
+    @Autowired
+    WebApplicationContext webAppContext;
 
     @MockBean
     StockService stockService;
@@ -49,14 +59,12 @@ public class StockControllerTest {
     @Test
     public void Should_getAllDevices_return_All_DevicesOnStock() throws Exception {
         when(stockService.findAllStock()).thenReturn(SampleStock.sampleStock);
-
         mockMvc.perform(get("/api/stock/all"))
                 .andDo(print())
                 .andExpect(jsonPath("$").value(hasSize(5)))
                 .andExpect(jsonPath("$..name").value(hasItem("mock1")))
                 .andExpect(jsonPath("$..deviceDefinition.id").value(hasItem(1)));
     }
-
 
     @Test
     public void Should_putReserveDevice_ReturnBadRequestCode400_when_DateParseError() throws Exception {

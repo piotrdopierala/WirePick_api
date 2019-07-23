@@ -30,14 +30,6 @@ public class SampleDataGenerator {
     @EventListener(ApplicationReadyEvent.class)
     public void configSampleDevices() {
 
-        final Logger logger = LoggerFactory.getLogger(WebMvcConfig.class);
-        logger.info("Attempt to create sample data on Event Listener");
-
-        System.out.println("------------------------------------------");
-        System.out.println("Attempt to create sample data on Event Listener");
-        System.out.println("------------------------------------------");
-        System.out.println("------------------------------------------");
-
         if(Utils.getIterableSize(stockRepository.findAll())>4){
             return;
         }

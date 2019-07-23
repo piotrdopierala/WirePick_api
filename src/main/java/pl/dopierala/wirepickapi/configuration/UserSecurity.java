@@ -1,12 +1,16 @@
 package pl.dopierala.wirepickapi.configuration;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import pl.dopierala.wirepickapi.model.user.User;
 
+import java.util.Objects;
+
 @Component
 public class UserSecurity {
 
+    //todo add test to check proper security checks
     /**
      * Check if currently logged in user (principal) has user particular user id
      *
@@ -14,8 +18,11 @@ public class UserSecurity {
      * @param userId check if user has this userId
      * @return true if currently logged user has supplied userId, false otherwise
      */
-
     public boolean hasUserId(Authentication authentication, Long userId) {
+        if(Objects.isNull(authentication) || Objects.isNull(userId)){
+            return false;
+        }
+
         Object principalRaw = authentication.getPrincipal();
         User loggedUser;
         if (principalRaw instanceof User) {

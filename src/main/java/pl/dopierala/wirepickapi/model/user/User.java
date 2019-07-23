@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @Entity
-public class User implements UserDetails {
+public class User implements UserDetails, Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -168,5 +168,10 @@ public class User implements UserDetails {
 
     public void setRole(Roles role) {
         this.role = role;
+    }
+
+    @Override
+    public User clone() throws CloneNotSupportedException {
+        return (User)super.clone();
     }
 }
