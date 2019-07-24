@@ -69,7 +69,7 @@ public class StockController {
         return ResponseEntity.accepted().body("Device Reserved");
     }
 
-    private LocalDateTime parseDate(String dateToParse) {
+    private LocalDateTime parseDate(String dateToParse) throws DateParseException {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE;
         LocalDateTime parsedDate;
         try {
