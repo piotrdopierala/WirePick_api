@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.dopierala.wirepickapi.exceptions.definitions.Stock.DateParseException;
+import pl.dopierala.wirepickapi.model.BookEvent;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.service.StockService;
@@ -51,6 +52,11 @@ public class StockController {
         LocalDateTime reserveDateTo = parseDate(deviceReservTo);
 
         return stockService.findFreeStockByDeviceDefinition(deviceDefinitionId, reserveDateFrom, reserveDateTo);
+    }
+
+    @GetMapping("/item/{stockItemId}/bookings")
+    public Iterable<BookEvent> getAllBookingsOfItem(@PathVariable Long stockItemId){
+        return stockService.findAllBookingsOfDeviceItemId(stockItemId);
     }
 
     @PutMapping("/reserv/{stockItemId}/user/{userId}/from/{deviceReservFrom}/to/{deviceReservTo}")

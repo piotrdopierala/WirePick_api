@@ -16,6 +16,8 @@ public interface BookingsRepository extends CrudRepository<BookEvent, Long> {
 
     Iterable<BookEvent> findAllByUser(User user);
 
+    Iterable<BookEvent> findAllByItemBooked_Id(Long ItemId);
+
     Iterable<BookEvent> findAllByUserAndItemBooked_Id(User user, Long ItemId);
 
     BookEvent findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(User user, Long ItemId, LocalDateTime start, LocalDateTime end);

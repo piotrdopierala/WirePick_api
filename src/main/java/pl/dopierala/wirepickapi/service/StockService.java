@@ -250,4 +250,14 @@ public class StockService {
     public Optional<BookEvent> findUserItemBookingInPeriod(User user, Long itemId, LocalDateTime start, LocalDateTime end) {
         return Optional.ofNullable(bookingsRepository.findBookEventByUserAndItemBooked_IdAndBookStartLessThanEqualAndBookEndGreaterThanEqual(user, itemId, start, end));
     }
+
+    /**
+     * Gets all bookings of particular device item
+     *
+     * @param itemId id of item witch bookings to find
+     * @return Collection of bookings
+     */
+    public Iterable<BookEvent> findAllBookingsOfDeviceItemId(Long itemId){
+        return bookingsRepository.findAllByItemBooked_Id(itemId);
+    }
 }

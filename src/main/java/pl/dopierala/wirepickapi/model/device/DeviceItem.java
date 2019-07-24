@@ -1,6 +1,9 @@
 package pl.dopierala.wirepickapi.model.device;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import pl.dopierala.wirepickapi.model.BookEvent;
 
 import javax.persistence.*;
@@ -19,7 +22,8 @@ public class DeviceItem implements Cloneable {
     private LocalDateTime dateAddedToLibrary;
     private String localization;
     @OneToMany(mappedBy = "itemBooked", cascade = {CascadeType.ALL})
-    @JsonBackReference
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private List<BookEvent> bookings;
 
     public DeviceItem() {

@@ -103,6 +103,7 @@ public class SampleStock {
                 LocalDateTime.of(2017, 05, 10, 9, 0),
                 u1
         );
+        s1_u1_book1.setId(1L);
 
         s1_u1_book2 = new BookEvent(
                 s1_d1,
@@ -110,6 +111,7 @@ public class SampleStock {
                 LocalDateTime.of(2017, 07, 10, 9, 0),
                 u1
         );
+        s1_u1_book2.setId(2L);
 
         s1_u2_book1 = new BookEvent(
                 s1_d1,
@@ -117,30 +119,35 @@ public class SampleStock {
                 LocalDateTime.of(2017, 06, 10, 9, 0),
                 u2
         );
+        s1_u2_book1.setId(3L);
 
         s1_u1_b1_borrow1 = new BorrowEvent(
                 s1_u1_book1,
                 LocalDateTime.of(2017, 05, 1, 9, 0),
                 LocalDateTime.of(2017, 05, 2, 9, 0)
                 );
+        s1_u1_b1_borrow1.setId(1L);
 
         s1_u1_b1_borrow2 = new BorrowEvent(
                 s1_u1_book1,
                 LocalDateTime.of(2017, 05, 4, 9, 0),
                 LocalDateTime.of(2017, 05, 6, 9, 0)
                 );
+        s1_u1_b1_borrow2.setId(2L);
 
         s1_u1_b2_borrow1 =  new BorrowEvent(
                 s1_u1_book2,
                 LocalDateTime.of(2017, 07, 1, 9, 0),
                 LocalDateTime.of(2017, 07, 10, 9, 0)
         );
+        s1_u1_b2_borrow1.setId(3L);
 
         s1_u2_b1_borrow1 = new BorrowEvent(
                 s1_u2_book1,
                 LocalDateTime.of(2017, 06, 2, 9, 0),
                 LocalDateTime.of(2017, 06, 3, 9, 0)
         );
+        s1_u2_b1_borrow1.setId(4L);
 
         s1_u1_b1_borrows = new ArrayList<>();
         s1_u1_b1_borrows.add(s1_u1_b1_borrow1);

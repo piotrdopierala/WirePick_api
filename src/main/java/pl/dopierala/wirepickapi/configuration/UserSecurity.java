@@ -10,7 +10,6 @@ import java.util.Objects;
 @Component
 public class UserSecurity {
 
-    //todo add test to check proper security checks
     /**
      * Check if currently logged in user (principal) has user particular user id
      *

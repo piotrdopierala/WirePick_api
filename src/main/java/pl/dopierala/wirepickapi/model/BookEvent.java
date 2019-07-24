@@ -1,6 +1,9 @@
 package pl.dopierala.wirepickapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import pl.dopierala.wirepickapi.model.device.DeviceItem;
 import pl.dopierala.wirepickapi.model.user.User;
 import pl.dopierala.wirepickapi.repositories.devices.BookingsRepository;
@@ -21,7 +24,8 @@ public class BookEvent implements Comparable<BookEvent>, Cloneable {
     private String notes;
     @ManyToOne
     @JoinColumn
-    @JsonManagedReference
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private DeviceItem itemBooked;
     @ManyToOne
     private User user;
